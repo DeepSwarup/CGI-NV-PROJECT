@@ -1,0 +1,11 @@
+<div *ngIf="customer; else loading">
+  <h2>Customer Details</h2>
+  <p>ID: {{ customer.customerId }}</p>
+  <p>Phone: {{ customer.phoneNo }}</p>
+  <p>Age: {{ customer.age }}</p>
+  <p>Gender: {{ customer.gender }}</p>
+</div>
+
+<ng-template #loading>
+  <p>Loading the all customer for the git check lsnvlsn..jnsnnsdincsdn indiinvjn jjdsnd.</p>
+</ng-template>

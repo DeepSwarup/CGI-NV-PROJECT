@@ -1,0 +1,105 @@
+<!-- <div class="container mt-5">
+  <h1>Signup Page</h1>
+  <form (ngSubmit)="onSignup()">
+    <div class="mb-3">
+      <label for="name" class="form-label">Name</label>
+      <input type="text" class="form-control" id="name" [(ngModel)]="name" name="name" required>
+    </div>
+    <div class="mb-3">
+      <label for="email" class="form-label">Email</label>
+      <input type="email" class="form-control" id="email" [(ngModel)]="email" name="email" required>
+    </div>
+    <div class="mb-3">
+      <label for="password" class="form-label">Password</label>
+      <input type="password" class="form-control" id="password" [(ngModel)]="password" name="password" required>
+    </div>
+    <div class="mb-3">
+      <label for="role" class="form-label">Role</label>
+      <select class="form-select" id="role" [(ngModel)]="role" name="role" disabled>
+        <option value="CUSTOMER">Customer</option>
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Signup</button>
+  </form>
+</div> -->
+
+<div
+  class="d-flex min-vh-100 align-items-center justify-content-center bg-light p-4"
+>
+  <!-- Logo + Title -->
+  <div class="w-100" style="max-width: 400px">
+    <div class="d-flex justify-content-center align-items-center mb-4">
+      <i class="bi bi-bank2 fs-1 text-primary me-2"></i>
+      <h3 class="fw-semibold mb-0">Web Bank</h3>
+    </div>
+
+    <div class="card shadow-lg border-0 p-4" style="max-width: 400px; width: 100%">
+      <!-- Page Heading -->
+      <h4 class="text-center fw-semibold mb-2">Sign Up</h4>
+      <p class="text-center text-muted mb-4">
+        Create your account to get started
+      </p>
+
+      <!-- Signup Form -->
+      <form (ngSubmit)="onSignup()">
+        <div class="mb-3">
+          <label for="name" class="form-label">Name</label>
+          <input
+            type="text"
+            class="form-control"
+            id="name"
+            [(ngModel)]="name"
+            name="name"
+            placeholder="Your full name"
+            required
+          />
+        </div>
+        <div class="mb-3">
+          <label for="email" class="form-label">Email</label>
+          <input
+            type="email"
+            class="form-control"
+            id="email"
+            [(ngModel)]="email"
+            name="email"
+            placeholder="m@example.com"
+            required
+          />
+        </div>
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input
+            type="password"
+            class="form-control"
+            id="password"
+            [(ngModel)]="password"
+            name="password"
+            placeholder="••••••••"
+            required
+          />
+        </div>
+        <div class="mb-3">
+          <label for="role" class="form-label">Role</label>
+          <select
+            class="form-select"
+            id="role"
+            [(ngModel)]="role"
+            name="role"
+            disabled
+          >
+            <option value="CUSTOMER">Customer</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Sign Up</button>
+      </form>
+
+      <!-- Extra Links -->
+      <p class="text-center mt-3 mb-0">
+        Already have an account?
+        <a routerLink="/login"
+         class="fw-semibold text-primary text-decoration-none" 
+        >Login</a>
+      </p>
+    </div>
+  </div>
+</div>

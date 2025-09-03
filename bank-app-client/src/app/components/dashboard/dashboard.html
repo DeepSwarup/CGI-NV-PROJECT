@@ -1,0 +1,46 @@
+<div class="container mt-5">
+  <h1>All Users</h1>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Role</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let user of users">
+        <td>{{ user.name }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.role }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+
+    <h1>All Customers</h1>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>CustomerId</th>
+        <th>PhoneNo</th>
+        <th>Age</th>
+        <th>gender</th>
+        <th>Email</th>
+        <th>GetDetails</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let customer of customers">
+        <td>{{ customer.customerId}}</td>
+        <td>{{ customer.phoneNo }}</td>
+        <td>{{ customer.age }}</td>
+        <td>{{ customer.gender }}</td>
+        <td>{{ customer.email }}</td>
+            <td>
+      <a [routerLink]="['/customer', customer.customerId]">View Details</a>
+    </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,109 @@
+<!-- <div class="container mt-5">
+  <h1>Welcome to the Homepage</h1>
+  <p>This is accessible to everyone.</p>
+</div> -->
+
+<div class="d-flex flex-column min-vh-100">
+  <!-- Header -->
+  <header class="sticky-top bg-light bg-opacity-75 border-bottom">
+    <nav
+      class="container d-flex justify-content-between align-items-center py-3"
+    >
+      <a routerLink="/" class="navbar-brand fw-bold">Web Bank</a>
+      <div>
+        <a routerLink="/login" class="btn btn-outline-secondary me-2">Login</a>
+        <a routerLink="/signup" class="btn btn-outline-primary">Sign Up</a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main -->
+  <main class="">
+    <!-- Hero -->
+    <section class="container text-center py-5 mt-6 position-relative">
+      <div
+        class="position-absolute top-0 start-0 w-100 h-100 bg-light"
+        style="
+          background-image: radial-gradient(#e9ecef 1px, transparent 1px);
+          background-size: 40px 40px;
+          opacity: 0.3;
+          z-index: -1;
+        "
+      ></div>
+
+      <h1 class="display-5 fw-bold">
+        Your Financial Future
+        <div class="text-primary">Redefined.</div>
+      </h1>
+      <p class="lead mt-3">
+        Experience modern banking with Web Bank. Secure, intuitive, and designed
+        for you.
+      </p>
+      <div class="mt-4">
+        <a routerLink="/signup" class="btn btn-primary me-2 px-4 py-2"
+          >Get Started</a
+        >
+        <a href="#features" class="btn btn-outline-secondary px-4 py-2"
+          >Learn More</a
+        >
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features" class="bg-light py-5">
+      <div class="container text-center">
+        <h2 class="fw-bold mb-3">Features Built for You</h2>
+        <p class="text-muted">
+          Everything you need to manage your finances effectively.
+        </p>
+
+        <div class="row mt-4 g-4">
+          <div class="col-md-6 col-lg-3" *ngFor="let feature of features">
+            <div class="card shadow-sm h-100 text-center">
+              <div class="card-body">
+                <i class="bi {{ feature.icon }} fs-1 text-primary"></i>
+                <h5 class="card-title mt-3">{{ feature.title }}</h5>
+                <p class="card-text text-muted">{{ feature.description }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="container py-5">
+      <div class="row align-items-center">
+        <div class="col-md-6">
+          <h2 class="fw-bold">Take Control of Your Money</h2>
+          <p class="text-muted mt-3">
+            Our intuitive platform makes it easy to track your accounts, manage
+            beneficiaries, and stay on top of your financial goals.
+          </p>
+          <a routerLink="/signup" class="btn btn-primary mt-3"
+            >Create an Account</a
+          >
+        </div>
+        <div class="col-md-6 text-center">
+          <img
+            src="https://picsum.photos/600/400"
+            alt="Web Bank Dashboard"
+            class="img-fluid rounded shadow"
+          />
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-light border-top py-4 mt-auto">
+    <div
+      class="container d-flex flex-column flex-sm-row justify-content-between align-items-center"
+    >
+      <a routerLink="/" class="navbar-brand fw-bold">Web Bank</a>
+      <p class="mb-0 text-muted small">
+        © {{ currentYear }} Web Bank. All rights reserved.
+      </p>
+    </div>
+  </footer>
+</div>

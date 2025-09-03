@@ -1,0 +1,77 @@
+<div class="container mt-5" *ngIf="role === 'CUSTOMER' || role === 'ADMIN'">
+  <h2>Customer Profile</h2>
+  <div *ngIf="isLoading">Loading...</div>
+  <ng-container *ngIf="!isLoading">
+    <ng-container *ngIf="profile; else noProfile">
+      <div *ngIf="!isEditMode">
+        <p><strong>Phone No:</strong> {{ profile.phoneNo }}</p>
+        <p><strong>Age:</strong> {{ profile.age }}</p>
+        <p><strong>Gender:</strong> {{ profile.gender }}</p>
+        <button class="btn btn-primary me-2" (click)="startEdit()">Edit</button>
+        <button class="btn btn-danger" (click)="onDelete()">Delete</button>
+      </div>
+      <form *ngIf="isEditMode" [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+        <div class="mb-3">
+          <label for="phoneNo" class="form-label">Phone No</label>
+          <input type="text" class="form-control" id="phoneNo" formControlName="phoneNo">
+          <div *ngIf="profileForm.get('phoneNo')?.invalid && profileForm.get('phoneNo')?.touched" class="text-danger">
+            Invalid phone number (e.g., +1234567890)
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="age" class="form-label">Age</label>
+          <input type="number" class="form-control" id="age" formControlName="age">
+          <div *ngIf="profileForm.get('age')?.invalid && profileForm.get('age')?.touched" class="text-danger">
+            Age must be between 18 and 120
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="gender" class="form-label">Gender</label>
+          <select class="form-select" id="gender" formControlName="gender">
+            <option value="">Select Gender</option>
+            <option value="MALE">Male</option>
+            <option value="FEMALE">Female</option>
+            <option value="OTHER">Other</option>
+          </select>
+          <div *ngIf="profileForm.get('gender')?.invalid && profileForm.get('gender')?.touched" class="text-danger">
+            Gender is required
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary me-2" [disabled]="profileForm.invalid">Update</button>
+        <button type="submit" class="btn btn-danger" [disabled]="profileForm.invalid" (click)="cancleEdit()">Cancle</button>
+      </form>
+    </ng-container>
+    <ng-template #noProfile>
+      <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+        <!-- Same form fields as above -->
+        <div class="mb-3">
+          <label for="phoneNo" class="form-label">Phone No</label>
+          <input type="text" class="form-control" id="phoneNo" formControlName="phoneNo">
+          <div *ngIf="profileForm.get('phoneNo')?.invalid && profileForm.get('phoneNo')?.touched" class="text-danger">
+            Invalid phone number (e.g., +1234567890)
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="age" class="form-label">Age</label>
+          <input type="number" class="form-control" id="age" formControlName="age">
+          <div *ngIf="profileForm.get('age')?.invalid && profileForm.get('age')?.touched" class="text-danger">
+            Age must be between 18 and 120
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="gender" class="form-label">Gender</label>
+          <select class="form-select" id="gender" formControlName="gender">
+            <option value="">Select Gender</option>
+            <option value="MALE">Male</option>
+            <option value="FEMALE">Female</option>
+            <option value="OTHER">Other</option>
+          </select>
+          <div *ngIf="profileForm.get('gender')?.invalid && profileForm.get('gender')?.touched" class="text-danger">
+            Gender is required
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" [disabled]="profileForm.invalid">Create Profile</button>
+      </form>
+    </ng-template>
+  </ng-container>
+</div>
