@@ -41,8 +41,9 @@ public class NomineeService {
         Account account = accountRepository.findById(nomineeRequest.getAccountId())
                 .orElseThrow(() -> new RuntimeException("Account not found with ID: " + nomineeRequest.getAccountId()));
 
-        if (nomineeRepository.existsByGovtId(nomineeRequest.getGovtId())) {
-            throw new RuntimeException("Nominee with this Government ID already exists");
+        if (nomineeRepository.existsByAccountAccountIdAndGovtId(
+                nomineeRequest.getAccountId(), nomineeRequest.getGovtId())) {
+            throw new RuntimeException("Nominee with this Government ID already exists for this account");
         }
 
         Nominee nominee = NomineeMapper.toEntity(nomineeRequest);
