@@ -15,9 +15,11 @@ public interface NomineeRepository extends JpaRepository<Nominee, Integer> {
     List<Nominee> findByAccountAccountId(Long accountId);
 
     Optional<Nominee> findByGovtId(String govtId);
+    boolean existsByAccountAccountIdAndGovtId(Long accountId, String govtId);
 
-    @Query("SELECT n FROM Nominee n WHERE n.name = :name AND n.account.accountId = :accountId")
-    List<Nominee> findByNameAndAccountId(@Param("name") String name, @Param("accountId") Long accountId);
+
+//    @Query("SELECT n FROM Nominee n WHERE n.name = :name AND n.account.accountId = :accountId")
+//    List<Nominee> findByNameAndAccountId(@Param("name") String name, @Param("accountId") Long accountId);
 
     boolean existsByGovtId(String govtId);
 
