@@ -3,24 +3,9 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, forkJoin, of, switchMap, map, catchError, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Account } from '../../models/account';
-import { Nominee } from '../../models/nominee';
+import { CreateNomineeRequest, Nominee, UpdateNomineeRequest } from '../../models/nominee';
+import { Customer } from '../../models/customer';
 
-interface Customer {
-  customerId: number;
-}
-
-interface CreateNomineeRequest {
-  name: string;
-  govtId: string;
-  govtIdType: string;
-  phoneNo: string;
-  relation: string;
-  accountId: number;
-}
-
-interface UpdateNomineeRequest extends CreateNomineeRequest {
-  nomineeId: number;
-}
 
 @Injectable({
   providedIn: 'root'

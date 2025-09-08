@@ -3,23 +3,8 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, forkJoin, of, switchMap, map, catchError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Account } from '../../models/account';
-import { Beneficiary } from '../../models/beneficiary';
-
-interface Customer {
-  customerId: number;
-}
-
-interface CreateBeneficiaryRequest {
-  beneficiaryName: string;
-  beneficiaryAccNo: number;
-  ifsc: string;
-  accountType: string;
-  accountId: number;
-}
-
-interface UpdateBeneficiaryRequest extends CreateBeneficiaryRequest {
-  beneficiaryId: number;
-}
+import { Beneficiary, CreateBeneficiaryRequest, UpdateBeneficiaryRequest } from '../../models/beneficiary';
+import { Customer } from '../../models/customer';
 
 @Injectable({
   providedIn: 'root'
@@ -181,19 +166,4 @@ export class BeneficiaryService {
     return accounts.find(acc => acc.accountId == accountId) || null;
   }
 
-  // /**
-  //  * Validate IFSC code format
-  //  */
-  // isValidIFSC(ifsc: string): boolean {
-  //   const ifscRegex = /^[A-Z]{4}0[A-Z0-9]{6}$/;
-  //   return ifscRegex.test(ifsc?.toUpperCase());
-  // }
-
-  // /**
-  //  * Validate account number
-  //  */
-  // isValidAccountNumber(accountNo: string): boolean {
-  //   const accNoRegex = /^\d{9,18}$/;
-  //   return accNoRegex.test(accountNo);
-  // }
 }
