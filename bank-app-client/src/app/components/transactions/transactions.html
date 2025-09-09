@@ -1,0 +1,121 @@
+<div class="transactions-container card">
+  <div class="card-header">
+    <div>
+      <h3>Recent Transactions</h3>
+      <p class="subtitle">A log of recent activity on this account</p>
+    </div>
+    <div class="actions">
+      <a class="link" routerLink="/dashboard">Back</a>
+    </div>
+  </div>
+
+  <div class="card-body">
+
+    <div class="toolbar">
+      <div class="search-box">
+        <input
+          type="text"
+          placeholder="Search by Remarks or Transaction ID"
+          [(ngModel)]="searchTerm"
+        />
+      </div>
+
+      <form [formGroup]="filterForm" class="filters" (ngSubmit)="applyFilter()">
+        <select formControlName="type">
+          <option value="ALL">All Types</option>
+          <option value="DEPOSIT">Deposit</option>
+          <option value="WITHDRAWAL">Withdrawal</option>
+          <option value="TRANSFER">Transfer</option>
+        </select>
+
+        <select formControlName="status">
+          <option value="ALL">All Status</option>
+          <option value="SUCCESS">Success</option>
+          <option value="FAILED">Failed</option>
+        </select>
+
+        <label class="date-range">
+          <input type="date" formControlName="from" />
+          <span class="to-sep">to</span>
+          <input type="date" formControlName="to" />
+        </label>
+
+        <button type="submit" class="btn-apply">Apply</button>
+      </form>
+    </div>
+
+
+    <div *ngIf="loading()" class="loader">Loading…</div>
+    <div *ngIf="error()" class="error">{{ error() }}</div>
+
+    <!-- responsive table wrapper: allows horizontal scroll on small screens -->
+    <div class="table-responsive">
+      <table *ngIf="!loading() && pagedTransactions().length > 0" class="tx-table">
+        <thead>
+          <tr>
+            <th>Transaction ID</th>
+            <th>Date & Time</th>
+            <th>Type</th>
+            <th>Remarks</th>
+            <th>Amount</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let tx of pagedTransactions()">
+            <td>{{ tx.transactionId }}</td>
+            <td>{{ tx.transactionDateandTime | date: 'dd MMM yyyy, HH:mm' }}</td>
+            <td>
+              <span class="type" [ngClass]="tx.transactiontype.toLowerCase()">
+                {{ tx.transactiontype }}
+              </span>
+            </td>
+            <td>{{ tx.transactionRemarks || '-' }}</td>
+            <td
+              [ngClass]="{
+                positive: tx.transactiontype === 'DEPOSIT',
+                negative: tx.transactiontype === 'WITHDRAWAL'
+              }"
+            >
+              {{ tx.transactiontype === 'DEPOSIT' ? '+' : tx.transactiontype === 'WITHDRAWAL' ? '-' : '' }}
+              {{ tx.amount | currency: 'INR' }}
+            </td>
+            <td>
+              <span class="status" [ngClass]="tx.transactionstatus?.toLowerCase()">
+                {{ tx.transactionstatus }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="!loading() && pagedTransactions().length === 0" class="empty">
+      No recent transactions found.
+    </div>
+
+    <!-- footer pagination: Prev left, pages centered, Next right -->
+    <div class="footer pagination" role="navigation" aria-label="Transactions pagination">
+      <div class="prev">
+        <button class="prev-btn" [disabled]="currentPage() === 1" (click)="prevPage()">
+          Previous
+        </button>
+      </div>
+
+      <div class="pages" aria-hidden="false">
+        <button
+          *ngFor="let p of totalPagesArray()"
+          [class.active]="p === currentPage()"
+          (click)="goToPage(p)">
+          {{ p }}
+        </button>
+      </div>
+
+      <div class="next">
+        <button class="next-btn" [disabled]="currentPage() === totalPages()" (click)="nextPage()">
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

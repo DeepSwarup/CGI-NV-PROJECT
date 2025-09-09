@@ -6,6 +6,7 @@ import { Profile } from './components/profile/profile';
 import { authGuard } from './guard/auth-guard';
 import { Dashboard } from './components/dashboard/dashboard';
 import { CustomerDetails } from './components/customer-details/customer-details';
+import { Transactions } from './components/transactions/transactions';
 
 export const routes: Routes = [
     {path:'', component: Home},
@@ -14,5 +15,6 @@ export const routes: Routes = [
     {path:'profile', component: Profile, canActivate: [authGuard]},
     {path:'dashboard', component: Dashboard, canActivate: [authGuard]},
     {path:'customer/:id', component: CustomerDetails, canActivate: [authGuard]},
+    {path: 'transactions/:accountId', component: Transactions, canActivate: [authGuard]},
     {path:'**', redirectTo: ''},
 ];

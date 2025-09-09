@@ -33,7 +33,6 @@ public class TransactionService {
         Account account = accountRepository.findById(dto.getAccountId())
                 .orElseThrow(() -> new RuntimeException("Account not found"));
 
-        // Fix: Use account.getCustomer().getUser().getId() instead of account.getUser().getId()
         if (!account.getCustomer().getUser().getId().equals(userId)) {
             throw new RuntimeException("Unauthorized access");
         }
@@ -51,7 +50,7 @@ public class TransactionService {
                 .orElseThrow(() -> new RuntimeException("Transaction not found"));
 
         Account account = transaction.getBankAccount();
-        // Fix: Use account.getCustomer().getUser().getId() instead of account.getUser().getId()
+
         if (!account.getCustomer().getUser().getId().equals(userId)) {
             throw new RuntimeException("Unauthorized access");
         }
@@ -64,7 +63,7 @@ public class TransactionService {
                 .orElseThrow(() -> new RuntimeException("Transaction not found"));
 
         Account account = transaction.getBankAccount();
-        // Fix: Use account.getCustomer().getUser().getId() instead of account.getUser().getId()
+        
         if (!account.getCustomer().getUser().getId().equals(userId)) {
             throw new RuntimeException("Unauthorized access");
         }
@@ -77,7 +76,6 @@ public class TransactionService {
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new RuntimeException("Account not found"));
 
-        // Fix: Use account.getCustomer().getUser().getId() instead of account.getUser().getId()
         if (!account.getCustomer().getUser().getId().equals(userId)) {
             throw new RuntimeException("Unauthorized access");
         }
@@ -96,7 +94,7 @@ public class TransactionService {
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new RuntimeException("Account not found"));
 
-        // Fix: Use account.getCustomer().getUser().getId() instead of account.getUser().getId()
+      
         if (!account.getCustomer().getUser().getId().equals(userId)) {
             throw new RuntimeException("Unauthorized access");
         }
