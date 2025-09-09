@@ -1,0 +1,250 @@
+/* Container / Card: responsive up to 1300px */
+.transactions-container.card {
+  max-width: min(90%, 1300px);  /* responsive cap */
+  margin: 2rem auto;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+/* Keep original .card fallback */
+.card {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.08);
+  margin: 1rem;
+  overflow: hidden;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+}
+.subtitle {
+  color: #666;
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+
+/* toolbar layout */
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  align-items: center;
+  padding: 0 1rem;
+}
+
+/* Search box responsive */
+.search-box {
+  
+  flex: 1 1 320px;
+  min-width: 200px;
+}
+.search-box input {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 50%;
+  box-sizing: border-box;
+}
+
+/* Filters group */
+.filters {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex: 0 1 auto;
+}
+.filters select,
+.filters input[type='date'] {
+  padding: 0.4rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: #fff;
+  font-size: 0.95rem;
+}
+
+/* date "to" separator a bit smaller on very small screens */
+.date-range .to-sep {
+  margin: 0 6px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* apply button */
+.btn-apply {
+  background: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.25s;
+}
+.btn-apply:hover {
+  background: #0056b3;
+}
+
+/* Responsive table wrapper so it can scroll horizontally on small screens */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Table */
+.tx-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  min-width: 820px; /* allow horizontal scroll if viewport smaller */
+  margin: 0;
+}
+
+.tx-table thead {
+  background: #f9fafb;
+}
+.tx-table th,
+.tx-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+.tx-table tbody tr:hover {
+  background: #f9fcff;
+}
+
+/* Amount colors */
+.positive {
+  color: #0f9d58;
+  font-weight: 600;
+}
+.negative {
+  color: #d93025;
+  font-weight: 600;
+}
+
+/* Type badges */
+.type {
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.type.deposit {
+  background: #e6f7ec;
+  color: #0f9d58;
+}
+.type.withdrawal {
+  background: #fdecea;
+  color: #d93025;
+}
+.type.transfer {
+  background: #e8f0fe;
+  color: #1a73e8;
+}
+
+/* Status pills */
+.status {
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+.status.success {
+  background: #e6f7ec;
+  color: #0f9d58;
+}
+.status.failed {
+  background: #fdecea;
+  color: #d93025;
+}
+
+/* Footer / Pagination layout: Prev-left, centered pages, Next-right */
+.footer.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1rem;
+  border-top: 1px solid #eee;
+  gap: 8px;
+  background: #fff;
+}
+
+/* Prev & Next containers pinned */
+.footer.pagination .prev,
+.footer.pagination .next {
+  flex: 0 0 auto;
+}
+
+/* center page numbers and allow shrink */
+.footer.pagination .pages {
+  flex: 1 1 auto;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* button base styles */
+.footer.pagination button,
+.footer.pagination .pages button {
+  padding: 0.45rem 0.8rem;
+  border: 1px solid #d9dbe0;
+  background: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  min-width: 36px;
+  font-size: 0.95rem;
+}
+
+/* active page */
+.footer.pagination .pages button.active {
+  background: #007bff;
+  color: #fff;
+  border-color: #007bff;
+  font-weight: 700;
+}
+
+/* disabled */
+.footer.pagination button[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  color: #9ea7b0;
+}
+
+/* ellipsis (if used) */
+.footer.pagination .dots {
+  color: #9aa1a8;
+  padding: 0.45rem 0.6rem;
+}
+
+/* small-screen adjustments */
+@media (max-width: 900px) {
+  .transactions-container.card { padding: 8px; }
+  .toolbar { padding: 8px; gap: 8px; }
+  .filters { gap: 6px; }
+  .tx-table th, .tx-table td { padding: 10px 8px; font-size: 0.9rem; }
+  .footer.pagination { padding: 0.6rem 8px; }
+  .footer.pagination .pages { gap: 8px; }
+}
+
+/* very small screens */
+@media (max-width: 520px) {
+  .toolbar { flex-direction: column; align-items: stretch; padding: 8px; }
+  .filters { width: 100%; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .filters select, .filters input[type='date'] { width: 48%; }
+  .date-range .to-sep { display: none; } /* keep compact */
+  .tx-table { min-width: 700px; } /* still allow horizontal scroll */
+  .footer.pagination .pages { gap: 6px; }
+  .footer.pagination .pages button { padding: 6px 8px; min-width: 32px; font-size: 0.85rem; }
+}

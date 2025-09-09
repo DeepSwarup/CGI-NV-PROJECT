@@ -24,7 +24,7 @@ public class Transaction {
     private LocalDateTime transactionDateandTime;
     
     @ManyToOne
-    @JoinColumn(name = "accountid", nullable = false, referencedColumnName = "account_id")
+    @JoinColumn(name = "account_id", nullable = false)
     private Account bankAccount;
     
     @Enumerated(EnumType.STRING)
