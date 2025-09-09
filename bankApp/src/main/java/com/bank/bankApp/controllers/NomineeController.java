@@ -14,7 +14,6 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("/nominees")
-@CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class NomineeController {
 
@@ -31,6 +30,7 @@ public class NomineeController {
     @GetMapping("/{accountId}")
     public ResponseEntity<Set<NomineeResponse>> getNomineesByAccountId(@PathVariable Long accountId) {
         Set<NomineeResponse> nominees = nomineeService.listAllNominees(accountId);
+
         if (nominees.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
