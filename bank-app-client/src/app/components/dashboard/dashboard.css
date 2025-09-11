@@ -30,17 +30,19 @@
   padding-bottom: 0;
 }
 
-/* Transaction Item in Recent Transactions Card */
-.transaction-item {
-  padding: 0.75rem 0;
-  border-bottom: 1px solid #f8f9fa;
-}
-.transaction-item:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
+/* --- UPDATED & NEW STYLES FOR RECENT TRANSACTIONS --- */
+
+.transaction-list .list-group-item {
+    padding-left: 0;
+    padding-right: 0;
+    border-bottom: 1px solid #f0f0f0;
 }
 
-.transaction-item .icon-circle {
+.transaction-list .list-group-item:last-child {
+    border-bottom: none;
+}
+
+.icon-circle {
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -48,12 +50,34 @@
   align-items: center;
   justify-content: center;
   font-size: 1.1rem;
+  flex-shrink: 0; /* Prevents icon from shrinking */
 }
 
 .bg-success-light { background-color: rgba(25, 135, 84, 0.1); }
 .bg-danger-light { background-color: rgba(220, 53, 69, 0.1); }
 
-/* Quick Actions Card */
+.badge {
+    font-size: 0.7rem;
+    padding: 0.3em 0.6em;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+/* --- NEW: QUICK ACTIONS GRID STYLES --- */
+.quick-actions-grid {
+  display: grid;
+  gap: 0.75rem;
+  /* For mobile (default): 1 column */
+  grid-template-columns: 1fr;
+}
+
+/* For medium screens and up (desktop): 2 columns */
+@media (min-width: 768px) {
+  .quick-actions-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 .btn-light.text-start {
   text-align: left !important;
   display: flex;
@@ -63,5 +87,23 @@
 }
 .btn-light.text-start:hover {
   background-color: #e9ecef;
+}
+
+/* --- STYLES FOR PROGRESS BAR --- */
+.setup-progress-card {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+}
+
+.quick-link-actions {
+    flex-shrink: 0;
+}
+
+/* --- STYLES FOR COMPLETION MESSAGE --- */
+.alert-success {
+    background-color: #d1e7dd;
+    border-color: #badbcc;
+    color: #0f5132;
+    font-weight: 500;
 }
 

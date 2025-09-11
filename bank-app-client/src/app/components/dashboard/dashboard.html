@@ -1,11 +1,28 @@
 <div *ngIf="!isLoading()">
     <!-- Welcome Header -->
     <h1 class="mb-1">Welcome back, {{ userName() }}!</h1>
-    <p class="text-muted mb-4">This is your financial overview.</p>
-
+    
+   
+    <!-- Main Content Row -->
     <div class="row g-4">
-        <!-- Left Column -->
-        <div class="col-lg-8">
+        <!-- Main Column now takes full width -->
+        <div class="col-lg-12">
+
+            <!-- START: Repositioned Quick Actions Card -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Quick Actions</h5>
+                    <!-- This div now uses a responsive grid layout class -->
+                    <div class="quick-actions-grid">
+                        <button class="btn btn-light border text-start" (click)="openModal('transfer')"><i class="bi bi-send-fill me-2 text-primary"></i>Transfer Money</button>
+                        <button class="btn btn-light border text-start" (click)="openModal('account')"><i class="bi bi-plus-circle-fill me-2 text-success"></i>Create New Account</button>
+                        <button class="btn btn-light border text-start" (click)="navigate('/beneficiaries')"><i class="bi bi-person-plus-fill me-2 text-info"></i>Add Beneficiary</button>
+                        <button class="btn btn-light border text-start" (click)="navigate('/nominees')"><i class="bi bi-person-badge-fill me-2 text-warning"></i>Add Nominee</button>
+                    </div>
+                </div>
+            </div>
+            <!-- END: Repositioned Quick Actions Card -->
+
             <div class="row g-4">
                 <!-- Your Accounts Card -->
                 <div class="col-md-6">
@@ -34,43 +51,37 @@
                     </div>
                 </div>
                 <!-- Recent Transactions Card -->
-                <div class="col-md-6">
+               <div class="col-md-6">
                     <div class="card h-100">
                         <div class="card-body">
                             <h5 class="card-title">Recent Transactions</h5>
                             <div *ngIf="recentTransactions().length > 0; else noTransactions">
-                                <ul class="list-unstyled mb-0">
-                                    <li *ngFor="let tx of recentTransactions()" class="transaction-item">
-                                        <div class="d-flex">
-                                            <div class="icon-circle" [ngClass]="{'bg-success-light text-success': tx.transactiontype === 'DEPOSIT', 'bg-danger-light text-danger': tx.transactiontype !== 'DEPOSIT'}"><i class="bi" [ngClass]="{'bi-arrow-down': tx.transactiontype === 'DEPOSIT', 'bi-arrow-up': tx.transactiontype !== 'DEPOSIT'}"></i></div>
-                                            <div class="flex-grow-1 ms-3">
-                                                <div class="fw-bold">{{ tx.transactionRemarks }}</div>
-                                                <div class="small text-muted">{{ tx.transactionDateandTime | date:'mediumDate' }}</div>
+                                <ul class="list-group list-group-flush transaction-list">
+                                    <li *ngFor="let tx of recentTransactions()" class="list-group-item d-flex justify-content-between align-items-center">
+                                        <div class="d-flex align-items-center">
+                                            <div class="icon-circle me-3" [ngClass]="{'bg-success-light text-success': tx.transactiontype === 'DEPOSIT', 'bg-danger-light text-danger': tx.transactiontype !== 'DEPOSIT'}">
+                                                <i class="bi" [ngClass]="{'bi-arrow-down': tx.transactiontype === 'DEPOSIT', 'bi-arrow-up': tx.transactiontype !== 'DEPOSIT'}"></i>
                                             </div>
+                                            <div>
+                                                <div class="fw-bold">{{ tx.transactionRemarks || 'Transaction' }}</div>
+                                                <div class="small text-muted">
+                                                    Acc #{{ tx.accountId }} · {{ tx.transactionDateandTime | date:'mediumDate' }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="text-end">
                                             <div class="fw-bold" [ngClass]="{'text-success': tx.transactiontype === 'DEPOSIT', 'text-danger': tx.transactiontype !== 'DEPOSIT'}">
                                                 {{ (tx.transactiontype === 'DEPOSIT' ? '+' : '-') + (tx.amount | currency:'INR') }}
                                             </div>
+                                            <span class="badge" [ngClass]="tx.transactionstatus === 'SUCCESS' ? 'bg-success-light text-success' : 'bg-danger-light text-danger'">
+                                                {{ tx.transactionstatus }}
+                                            </span>
                                         </div>
                                     </li>
                                 </ul>
                             </div>
-                             <ng-template #noTransactions><p class="text-muted fst-italic">No recent transactions.</p></ng-template>
+                             <ng-template #noTransactions><p class="text-muted fst-italic">No recent transactions to show.</p></ng-template>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Right Column -->
-        <div class="col-lg-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title mb-3">Quick Actions</h5>
-                    <div class="d-grid gap-2">
-                        <button class="btn btn-light border text-start" (click)="openModal('transfer')"><i class="bi bi-send-fill me-2 text-primary"></i>Transfer Money</button>
-                        <button class="btn btn-light border text-start" (click)="openModal('account')"><i class="bi bi-plus-circle-fill me-2 text-success"></i>Create New Account</button>
-                        <button class="btn btn-light border text-start" (click)="navigate('/beneficiaries')"><i class="bi bi-person-plus-fill me-2 text-info"></i>Add Beneficiary</button>
-                        <button class="btn btn-light border text-start" (click)="navigate('/nominees')"><i class="bi bi-person-badge-fill me-2 text-warning"></i>Add Nominee</button>
                     </div>
                 </div>
             </div>
@@ -78,7 +89,7 @@
     </div>
 </div>
 
-
+<!-- All modals remain unchanged at the bottom -->
 <!-- Create Account Modal -->
 <div *ngIf="showAccountModal()" class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);">
     <div class="modal-dialog modal-dialog-centered"><div class="modal-content"><form [formGroup]="accountForm" (ngSubmit)="createAccount()"><div class="modal-header"><h5 class="modal-title">Create New Bank Account</h5><button type="button" class="btn-close" (click)="closeModal()"></button></div><div class="modal-body"><div class="mb-3"><label class="form-label">Account Type</label><select formControlName="accountType" class="form-select"><option value="SAVINGS">Savings</option><option value="TERM">Term (Fixed)</option></select></div><div class="mb-3"><label class="form-label">Initial Deposit</label><input type="number" formControlName="initialDeposit" class="form-control"></div><div *ngIf="accountForm.get('accountType')?.value === 'SAVINGS'"><div class="mb-3"><label class="form-label">Minimum Balance</label><input type="number" formControlName="minBalance" class="form-control"></div></div><div *ngIf="accountForm.get('accountType')?.value === 'TERM'"><div class="mb-3"><label class="form-label">Term Amount</label><input type="number" formControlName="amount" class="form-control"></div><div class="mb-3"><label class="form-label">Duration (Months)</label><input type="number" formControlName="months" class="form-control"></div></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button><button type="submit" class="btn btn-primary" [disabled]="accountForm.invalid">Submit for Approval</button></div></form></div></div>

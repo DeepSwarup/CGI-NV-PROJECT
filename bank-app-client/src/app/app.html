@@ -5,34 +5,37 @@
 
 <ng-template #dashboardLayout>
   <div class="dashboard-layout">
-    <!-- Vertical Sidebar -->
-    <aside class="sidebar">
+    <!-- Overlay for mobile when sidebar is open -->
+    <div class="sidebar-overlay" [class.visible]="isSidebarVisible()" (click)="toggleSidebar()"></div>
+
+    <!-- Vertical Sidebar with conditional class -->
+    <aside class="sidebar" [class.visible]="isSidebarVisible()">
       <div class="sidebar-header">
         <i class="bi bi-bank2"></i>
-        <span>BankApp</span>
+        <span>NovaBank</span>
       </div>
       <nav class="sidebar-nav">
-        <a routerLink="/dashboard" routerLinkActive="active">
+        <a routerLink="/dashboard" routerLinkActive="active" (click)="isSidebarVisible.set(false)">
           <i class="bi bi-grid-1x2-fill"></i>
           <span>Overview</span>
         </a>
-        <a routerLink="/accounts" routerLinkActive="active">
+        <a routerLink="/accounts" routerLinkActive="active" (click)="isSidebarVisible.set(false)">
           <i class="bi bi-wallet2"></i>
           <span>Accounts</span>
         </a>
-        <a routerLink="/transactions" routerLinkActive="active">
+        <a routerLink="/transactions" routerLinkActive="active" (click)="isSidebarVisible.set(false)">
           <i class="bi bi-arrow-down-up"></i>
           <span>Transactions</span>
         </a>
-        <a routerLink="/beneficiaries" routerLinkActive="active">
+        <a routerLink="/beneficiaries" routerLinkActive="active" (click)="isSidebarVisible.set(false)">
           <i class="bi bi-people-fill"></i>
           <span>Beneficiaries</span>
         </a>
-        <a routerLink="/nominees" routerLinkActive="active">
+        <a routerLink="/nominees" routerLinkActive="active" (click)="isSidebarVisible.set(false)">
           <i class="bi bi-person-badge-fill"></i>
           <span>Nominees</span>
         </a>
-        <a routerLink="/profile" routerLinkActive="active">
+        <a routerLink="/profile" routerLinkActive="active" (click)="isSidebarVisible.set(false)">
           <i class="bi bi-person-circle"></i>
           <span>Profile</span>
         </a>
@@ -42,7 +45,11 @@
     <!-- Main Content Area -->
     <div class="main-content">
       <header class="top-bar">
-        <!-- Top bar content can go here if needed -->
+        <!-- Hamburger Menu Button (Mobile Only) -->
+        <button class="btn hamburger-btn d-lg-none" (click)="toggleSidebar()">
+          <i class="bi bi-list"></i>
+        </button>
+        
         <div class="user-menu ms-auto dropdown">
           <button class="btn user-avatar" type="button" data-bs-toggle="dropdown" aria-expanded="false">
             {{ userNameInitial }}
@@ -55,10 +62,10 @@
         </div>
       </header>
       
-      <!-- The current page will be rendered here -->
       <main class="content-area">
         <router-outlet></router-outlet>
       </main>
     </div>
   </div>
 </ng-template>
+

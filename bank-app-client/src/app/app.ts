@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { Auth } from './services/auth/auth';
@@ -15,12 +15,12 @@ export class App implements OnInit {
 
   isAuthenticated = false;
   userNameInitial = '';
+  isSidebarVisible = signal(false); // Signal to manage sidebar visibility on mobile
 
   ngOnInit() {
     this.authService.currentUser$.subscribe(user => {
       this.isAuthenticated = !!user;
       if (user) {
-        // Get the first letter of the user's name for the profile icon
         this.userNameInitial = user.name.charAt(0).toUpperCase();
       }
     });
@@ -29,4 +29,10 @@ export class App implements OnInit {
   logout() {
     this.authService.logout();
   }
+
+  // Method to toggle the sidebar on and off
+  toggleSidebar() {
+    this.isSidebarVisible.set(!this.isSidebarVisible());
+  }
 }
+
