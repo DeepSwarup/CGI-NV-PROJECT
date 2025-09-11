@@ -11,6 +11,7 @@ import { environment } from '../../../environments/environment';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './beneficiary.html',
+  styleUrls: ['./beneficiary.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BeneficiaryComponent {
@@ -23,7 +24,7 @@ export class BeneficiaryComponent {
   selectedAccount = signal<Account | null>(null);
   showBeneficiaryModal = signal(false);
   showFindBeneficiaryModal = signal(false);
-  loadingAccounts = signal(false);
+  loadingAccounts = signal(true);
   loadingFindBeneficiary = signal(false);
   isEditMode = signal(false);
   beneficiaryError = signal<string | null>(null);
@@ -57,6 +58,12 @@ export class BeneficiaryComponent {
       beneficiaryId: ['', [Validators.required]]
     });
   }
+
+
+  hasAnyBeneficiaries(): boolean {
+  const list = this.accounts();   // signal value
+  return Array.isArray(list) && list.some(acc => acc.beneficiaries?.length > 0);
+}
 
 
   fetchAccounts(): void {

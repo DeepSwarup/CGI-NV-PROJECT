@@ -1,0 +1,45 @@
+.nominee-card {
+  border-radius: 0.75rem;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.04);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.nominee-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0,0,0,0.08);
+}
+
+.card-title {
+  font-weight: 600;
+  color: #212529;
+}
+
+.nominee-details {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.nominee-details div {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.25rem 0;
+}
+
+.nominee-details span {
+  font-weight: 500;
+  color: #495057;
+}
+
+.dropdown .btn-link {
+  padding: 0;
+  line-height: 1;
+  color: #6c757d;
+}
+
+.dropdown .btn-link:hover,
+.dropdown .btn-link:focus {
+  color: #212529;
+}
+

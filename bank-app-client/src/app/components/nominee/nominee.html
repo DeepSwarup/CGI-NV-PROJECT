@@ -1,362 +1,111 @@
-<div class="container-fluid p-4">
-  <div class="container-xxl">
-    <!-- Header and Action Buttons -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <div>
-        <h1 class="display-5 fw-bold text-dark">Nominee Manager</h1>
-        <p class="text-muted">Manage nominee details for your accounts.</p>
-      </div>
-      <div class="d-flex gap-3">
-        <button type="button" class="btn btn-outline-secondary" (click)="openFindNomineeModal()">
-          Find Nominee
-        </button>
-        <button type="button" class="btn btn-primary" (click)="openAddNomineeModal()">
-          Add Nominee
-        </button>
-      </div>
-    </div>
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h1 class="mb-1">Nominees</h1>
+    <p class="text-muted">Manage the nominees assigned to your accounts.</p>
+  </div>
+  <button class="btn btn-primary" (click)="openAddNomineeModal()">
+    <i class="bi bi-plus-lg me-1"></i> Add Nominee
+  </button>
+</div>
 
-    <!-- Accounts List Section -->
-    <div class="row g-4">
-      <!-- Loading State -->
-      @if (loadingAccounts()) {
-      <div class="col-12 text-center py-5 text-muted">
-        <div class="spinner-border spinner-border-sm mb-3" role="status">
-          <span class="visually-hidden">Loading...</span>
-        </div>
-        <p>Fetching accounts...</p>
-      </div>
-      } @else if (accounts().length > 0) {
+<!-- Loading State -->
+<div *ngIf="loadingAccounts()" class="text-center py-5">
+  <div class="spinner-border text-primary" role="status"></div>
+</div>
 
-      <!-- Account Cards -->
-      @for (account of accounts(); track account.accountId) {
-      <div class="col-12">
-        <div class="card">
-          <div class="card-body">
-            <!-- Account Header - Always visible and clear -->
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <div>
-                <h5 class="card-title mb-1">{{ account.accountType }}</h5>
-                <p class="text-muted mb-0 fw-bold">Account ID: {{ account.accountId }}</p>
-              </div>
-              @if (selectedAccount()?.accountId === account.accountId && account.nominees && account.nominees.length >
-              0){
-              <div>
-                <button class="btn btn-outline-primary btn-sm" type="button" (click)="onHideNomineesClick()">
-                  See Less
-                </button>
-              </div>
-              }
-            </div>
-
-            <!-- Nominees Preview Section with Blur (only when not expanded) -->
-            @if (selectedAccount()?.accountId !== account.accountId && account.nominees && account.nominees.length > 0)
-            {
-            <div class="nominees-preview-container position-relative bg-light p-3 rounded" style="min-height: 180px;">
-              <!-- Fixed height container for consistent blur area -->
-              <div class="nominees-preview-content" style="max-height: 180px; overflow: hidden;">
-                @for (nominee of account.nominees; track nominee.nomineeId) {
-                <div class="nominee-preview-item mb-2">
-                  <p class="fw-medium mb-1">{{ nominee.name }}</p>
-                  <p class="small text-muted mb-1">{{ nominee.relation }}</p>
-                  <p class="small text-muted mb-1">ID: {{ nominee.nomineeId }}</p>
-                  <p class="small text-muted mb-0">{{ nominee.govtIdType }}: {{ nominee.govtId }} | Phone: {{
-                    nominee.phoneNo }}</p>
-                </div>
-                }
-              </div>
-
-              <!-- Blur overlay -->
-              <div class="nominees-blur-overlay position-absolute top-0 start-0 w-100 h-100 rounded"
-                style="backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); background-color: rgba(255, 255, 255, 0.7); z-index: 1;">
-              </div>
-
-              <!-- Centered button -->
-              <div class="nominees-button-center position-absolute top-50 start-50 translate-middle"
-                style="z-index: 10;">
-                <button class="btn btn-primary shadow" type="button" (click)="onShowNomineesClick(account)">
-                  Show {{ (account.nominees.length || 0) }} Nominee{{ (account.nominees.length || 0) === 1 ? '' : 's' }}
-                </button>
-              </div>
-            </div>
-            } @else if (selectedAccount()?.accountId !== account.accountId && (!account.nominees ||
-            account.nominees.length === 0)) {
-            <!-- No nominees case - Show Add Nominee UI directly -->
-            <div class="text-center py-5">
-              <div class="mb-3">
-                <i class="bi bi-person-plus" style="font-size: 2rem; color: #6c757d;"></i>
-              </div>
-              <p class="text-muted mb-3">No nominees assigned to this account.</p>
-              <button class="btn btn-success btn-sm" (click)="openAddNomineeModal(account.accountId)"
-                style="width: auto; padding: 0.4rem 0.75rem;">
-                <i class="bi bi-plus-circle me-1"></i>Add First Nominee
-              </button>
-            </div>
-            }
-
-            <!-- Nominees Section (expanded) -->
-            @if (selectedAccount()?.accountId === account.accountId) {
-            <div class="nominees-section">
-
-              @if (account.nominees && account.nominees.length > 0) {
-              <hr>
-              <h6 class="text-secondary mb-3">Nominees for this account ({{ account.nominees.length || 0 }} / 4)</h6>
-              @for (nominee of account.nominees; track nominee.nomineeId) {
-              <!-- Nominee Card -->
-              <div class="nominee-card p-3 mb-3 border rounded">
-                <div class="d-flex justify-content-between align-items-center">
-                  <div class="flex-grow-1">
-                    <p class="small text-muted mb-1">Nominee ID: {{ nominee.nomineeId }}</p>
-                    <p class="fw-medium mb-1">Name: {{ nominee.name }}</p>
-                    <p class="small text-muted mb-1">Relationship: {{ nominee.relation }}</p>
-                    <p class="small text-muted mb-1">Phone: {{ nominee.phoneNo }}</p>
-                    <p class="small text-muted mb-0">ID: {{ nominee.govtIdType }} - {{ nominee.govtId }}</p>
-                  </div>
-                  <div class="dropdown">
-                    <button class="btn btn-link text-dark p-0" type="button" data-bs-toggle="dropdown"
-                      aria-expanded="false">
-                      <i class="bi bi-three-dots-vertical"></i>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                      <li><a class="dropdown-item" href="#"
-                          (click)="onEditNomineeClick(nominee); $event.preventDefault()">
-                          <i class="bi bi-pencil me-2"></i>Edit
-                        </a></li>
-                      <li><a class="dropdown-item text-danger" href="#"
-                          (click)="onDeleteNomineeClick(nominee.nomineeId); $event.preventDefault()">
-                          <i class="bi bi-trash me-2"></i>Delete
-                        </a></li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-              }
-              } @else {
-              <!-- No Nominees State with Add Button -->
-              <div class="text-center py-5">
-                <div class="mb-3">
-                  <i class="bi bi-person-plus" style="font-size: 2rem; color: #6c757d;"></i>
-                </div>
-                <p class="text-muted mb-3">No nominees assigned to this account.</p>
-                <div class="d-inline-block">
-                  <button class="btn btn-success btn-sm" (click)="openAddNomineeModal(account.accountId)">
-                    <i class="bi bi-plus-circle me-1"></i>Add First Nominee
+<!-- Main Content -->
+<div *ngIf="!loadingAccounts()">
+  <div *ngFor="let account of accounts()">
+    <div *ngIf="account.nominees && account.nominees.length > 0">
+      <h5 class="text-muted mb-3 mt-4">For Account: #{{ account.accountId }} ({{ account.accountType }})</h5>
+      <div class="row g-4">
+        <div *ngFor="let nominee of account.nominees" class="col-md-6 col-lg-4">
+          <div class="card nominee-card">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start">
+                <h5 class="card-title">{{ nominee.name }}</h5>
+                <div class="dropdown">
+                  <button class="btn btn-link text-muted" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-three-dots-vertical"></i>
                   </button>
+                  <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#" (click)="onEditNomineeClick(nominee); $event.preventDefault()">Edit</a></li>
+                    <li><a class="dropdown-item text-danger" href="#" (click)="onDeleteNomineeClick(nominee.nomineeId); $event.preventDefault()">Delete</a></li>
+                  </ul>
                 </div>
               </div>
-              }
+              <div class="nominee-details">
+                <div><span>Relation:</span> {{ nominee.relation }}</div>
+                <div><span>Phone:</span> {{ nominee.phoneNo }}</div>
+                <div><span>ID Type:</span> {{ nominee.govtIdType }}</div>
+                <div><span>ID Number:</span> {{ nominee.govtId }}</div>
+              </div>
             </div>
-            }
           </div>
         </div>
       </div>
-      }
-      } @else {
-      <!-- No Accounts State -->
-      <div class="col-12 text-center py-5 text-muted">
-        <p>No accounts found.</p>
-      </div>
-      }
     </div>
   </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!hasAnyNominees()" class="text-center py-5 bg-light rounded">
+  No nominees found
+</div>
+
 </div>
 
 <!-- Add/Edit Nominee Modal -->
-@if (showNomineeModal()) {
-<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-  <div class="modal-dialog modal-lg">
+<div *ngIf="showNomineeModal()" class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header">
-        <div>
+      <form [formGroup]="nomineeForm" (ngSubmit)="saveNominee()">
+        <div class="modal-header">
           <h5 class="modal-title">{{ isEditMode() ? 'Edit Nominee' : 'Add New Nominee' }}</h5>
-          <p class="text-muted small mb-0">{{ isEditMode() ? 'Update the details for your nominee.' : 'Enter the details
-            for the new nominee.' }}</p>
+          <button type="button" class="btn-close" (click)="closeModal()"></button>
         </div>
-        <button type="button" class="btn-close" (click)="closeModal()"></button>
-      </div>
-
-      @if (nomineeError()) {
-      <div class="alert alert-danger mx-3 mt-3 mb-0">
-        {{nomineeError()}}
-      </div>
-      }
-
-      <div class="modal-body">
-        <form [formGroup]="nomineeForm" (ngSubmit)="saveNominee()">
+        <div class="modal-body">
+          <div *ngIf="nomineeError()" class="alert alert-danger">{{ nomineeError() }}</div>
           <div class="row g-3">
-
-            <!-- Account Selection (only for Add mode) -->
-            @if (!isEditMode()) {
+            <div class="col-12" *ngIf="!isEditMode()">
+              <label class="form-label">Assign to Account</label>
+              <select formControlName="accountId" class="form-select" [class.is-invalid]="isFieldInvalid('accountId')">
+                <option value="0" disabled>Select an account...</option>
+                <option *ngFor="let acc of accounts()" [value]="acc.accountId">Account #{{acc.accountId}}</option>
+              </select>
+            </div>
             <div class="col-12">
-              <label for="accountId" class="form-label">Select Account *</label>
-              <select class="form-select" id="accountId" formControlName="accountId"
-                [class.is-invalid]="isFieldInvalid('accountId')">
-                <option value="0">Select Account...</option>
-                @for (account of accounts(); track account.accountId) {
-                <option [value]="account.accountId">{{ account.accountType }} - ID: {{ account.accountId }}</option>
-                }
+              <label class="form-label">Nominee Name</label>
+              <input type="text" formControlName="name" class="form-control" [class.is-invalid]="isFieldInvalid('name')">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Relationship</label>
+              <select formControlName="relation" class="form-select" [class.is-invalid]="isFieldInvalid('relation')">
+                  <option value="" disabled>Select...</option><option value="SPOUSE">Spouse</option><option value="FATHER">Father</option><option value="MOTHER">Mother</option><option value="SON">Son</option><option value="DAUGHTER">Daughter</option><option value="OTHER">Other</option>
               </select>
-              @if (isFieldInvalid('accountId')) {
-              <div class="invalid-feedback">
-                {{ getFieldError('accountId') }}
-              </div>
-              }
             </div>
-            }
-
-            <!-- Nominee Name -->
-            <div class="col-12">
-              <label for="nomineeName" class="form-label">Nominee Name *</label>
-              <input type="text" class="form-control" id="nomineeName" formControlName="name"
-                placeholder="Enter nominee's full name" [class.is-invalid]="isFieldInvalid('name')">
-              @if (isFieldInvalid('name')) {
-              <div class="invalid-feedback">
-                {{ getFieldError('name') }}
-              </div>
-              }
-            </div>
-
-            <!-- Relationship -->
             <div class="col-md-6">
-              <label for="relation" class="form-label">Relationship *</label>
-              <select class="form-select" id="relation" formControlName="relation"
-                [class.is-invalid]="isFieldInvalid('relation')">
-                <option value="">Select...</option>
-                <option value="SPOUSE">Spouse</option>
-                <option value="FATHER">Father</option>
-                <option value="MOTHER">Mother</option>
-                <option value="SON">Son</option>
-                <option value="DAUGHTER">Daughter</option>
-                <option value="OTHER">Other</option>
+              <label class="form-label">Phone Number</label>
+              <input type="text" formControlName="phoneNo" class="form-control" [class.is-invalid]="isFieldInvalid('phoneNo')">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Govt. ID Type</label>
+              <select formControlName="govtIdType" class="form-select" [class.is-invalid]="isFieldInvalid('govtIdType')">
+                <option value="" disabled>Select...</option><option value="AADHAR">Aadhar</option><option value="PAN">PAN</option><option value="PASSPORT">Passport</option>
               </select>
-              @if (isFieldInvalid('relation')) {
-              <div class="invalid-feedback">
-                {{ getFieldError('relation') }}
-              </div>
-              }
             </div>
-
-            <!-- Phone Number -->
             <div class="col-md-6">
-              <label for="phoneNo" class="form-label">Phone Number *</label>
-              <input type="tel" class="form-control" id="phoneNo" formControlName="phoneNo"
-                placeholder="10-digit mobile number" maxlength="10" [class.is-invalid]="isFieldInvalid('phoneNo')">
-              @if (isFieldInvalid('phoneNo')) {
-              <div class="invalid-feedback">
-                {{ getFieldError('phoneNo') }}
-              </div>
-              }
-            </div>
-
-            <!-- Government ID Type -->
-            <div class="col-md-6">
-              <label for="govtIdType" class="form-label">Government ID Type *</label>
-              <select class="form-select" id="govtIdType" formControlName="govtIdType"
-                [class.is-invalid]="isFieldInvalid('govtIdType')">
-                <option value="">Select...</option>
-                <option value="AADHAR">Aadhar Card</option>
-                <option value="PASSPORT">Passport</option>
-                <option value="PAN">PAN Card</option>
-                <option value="VOTER_ID">Voter ID Card</option>
-                <option value="DRIVING_LICENSE">Driving License</option>
-              </select>
-              @if (isFieldInvalid('govtIdType')) {
-              <div class="invalid-feedback">
-                {{ getFieldError('govtIdType') }}
-              </div>
-              }
-            </div>
-
-            <!-- Government ID Number -->
-            <div class="col-md-6">
-              <label for="govtId" class="form-label">Government ID Number *</label>
-              <input type="text" class="form-control" id="govtId" formControlName="govtId"
-                [placeholder]="getIdPlaceholder()" [class.is-invalid]="isFieldInvalid('govtId')">
-              @if (isFieldInvalid('govtId')) {
-              <div class="invalid-feedback">
-                {{ getFieldError('govtId') }}
-              </div>
-              }
+              <label class="form-label">Govt. ID Number</label>
+              <input type="text" formControlName="govtId" class="form-control" [class.is-invalid]="isFieldInvalid('govtId')">
             </div>
           </div>
-
-          <div class="modal-footer mt-4">
-            <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
-            <button type="submit" class="btn btn-primary" [disabled]="!nomineeForm.valid || nomineeForm.pending">
-              {{ isEditMode() ? 'Update' : 'Save' }} Nominee
-            </button>
-          </div>
-        </form>
-      </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="nomineeForm.invalid">Save</button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
-}
 
-<!-- Find Nominee Modal -->
-@if (showFindNomineeModal()) {
-<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <div>
-          <h5 class="modal-title">Find Nominee</h5>
-          <p class="text-muted small mb-0">Enter a nominee ID to find their details.</p>
-        </div>
-        <button type="button" class="btn-close" (click)="closeModal()"></button>
-      </div>
-      <div class="modal-body">
-        <form [formGroup]="findNomineeForm">
-          <div class="mb-3">
-            <label for="nomineeId" class="form-label">Nominee ID *</label>
-            <div class="input-group">
-              <input type="text" class="form-control" id="nomineeId" formControlName="nomineeId"
-                placeholder="Enter nominee ID" [class.is-invalid]="isFieldInvalid('nomineeId', findNomineeForm)">
-              <button class="btn btn-primary" type="button" (click)="findNomineeById()">
-                Find
-              </button>
-            </div>
-            @if (isFieldInvalid('nomineeId', findNomineeForm)) {
-            <div class="invalid-feedback d-block">
-              {{ getFieldError('nomineeId', findNomineeForm) }}
-            </div>
-            }
-          </div>
-        </form>
-
-        <!-- Found Nominee Display -->
-        @if (foundNominee()) {
-        <div class="nominee-card p-3 mt-3">
-          <h6 class="fw-semibold text-dark">{{ foundNominee()?.name }}</h6>
-          @if (linkedAccount()) {
-          <p class="small text-muted mb-1">Linked Account: {{ linkedAccount()!.accountType }} - ID: {{
-            linkedAccount()!.accountId }}</p>
-          }
-          <p class="small text-muted mb-1">Relationship: {{ foundNominee()?.relation }}</p>
-          <p class="small text-muted mb-1">Phone: {{ foundNominee()?.phoneNo }}</p>
-          <p class="small text-muted mb-0">ID: {{ foundNominee()?.govtIdType }} - {{ foundNominee()?.govtId }}</p>
-        </div>
-        } @else if (searched() && !loadingFindNominee()) {
-        <!-- Not Found Message -->
-        <div class="alert alert-danger mt-3">
-          No nominee found with that ID.
-        </div>
-        }
-
-        <!-- Loading State -->
-        @if (loadingFindNominee()) {
-        <div class="text-center py-3">
-          <div class="spinner-border spinner-border-sm mb-2" role="status">
-            <span class="visually-hidden">Loading...</span>
-          </div>
-          <p class="small text-muted">Searching...</p>
-        </div>
-        }
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="closeModal()">Close</button>
-      </div>
-    </div>
-  </div>
-</div>
-}

@@ -1,28 +1,25 @@
-import { Component, inject } from '@angular/core';
-import { Auth } from '../../services/auth/auth';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CustomerProfile } from '../customer-profile/customer-profile';
+import { Auth } from '../../services/auth/auth';
 
 @Component({
   selector: 'app-profile',
+  standalone: true,
   imports: [CommonModule, CustomerProfile],
   templateUrl: './profile.html',
-  styleUrl: './profile.css',
+  styleUrls: ['./profile.css'],
 })
-export class Profile {
-  // user: { username: string; role: 'user' | 'admin' } | null = null
-  user: {
-    name: string;
-    email: string;
-    role: 'CUSTOMER' | 'ADMIN';
-  } | null = null;
-  
+export class Profile implements OnInit {
   private authService = inject(Auth);
+  
+  userName = signal('');
+  userEmail = signal('');
 
   ngOnInit() {
     this.authService.currentUser$.subscribe((user) => {
-      // console.log(user)
-      this.user = user
+      this.userName.set(user?.name || 'User');
+      this.userEmail.set(user?.email || '');
     });
   }
 }

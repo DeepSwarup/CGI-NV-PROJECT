@@ -1,343 +1,105 @@
-<div class="container-fluid p-4">
-  <div class="container-xxl">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <div>
-        <h1 class="display-5 fw-bold text-dark">Beneficiary Manager</h1>
-        <p class="text-muted">Manage beneficiary details for your accounts.</p>
-      </div>
-      <div class="d-flex gap-3">
-        <button type="button" class="btn btn-outline-secondary" (click)="openFindBeneficiaryModal()">
-          Find Beneficiary
-        </button>
-        <button type="button" class="btn btn-primary" (click)="openAddBeneficiaryModal()">
-          Add Beneficiary
-        </button>
-      </div>
-    </div>
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h1 class="mb-1">Beneficiaries</h1>
+    <p class="text-muted">Manage your saved beneficiaries for quick transfers.</p>
+  </div>
+  <button class="btn btn-primary" (click)="openAddBeneficiaryModal()">
+    <i class="bi bi-plus-lg me-1"></i> Add Beneficiary
+  </button>
+</div>
 
-    <!-- Accounts List Section -->
-    <div class="row g-4">
-      <!-- Loading State -->
-      @if (loadingAccounts()) {
-      <div class="col-12 text-center py-5 text-muted">
-        <div class="spinner-border spinner-border-sm mb-3" role="status">
-          <span class="visually-hidden">Loading...</span>
-        </div>
-        <p>Fetching accounts...</p>
-      </div>
-      } @else if (accounts().length > 0) {
+<!-- Loading State -->
+<div *ngIf="loadingAccounts()" class="text-center py-5">
+  <div class="spinner-border text-primary" role="status"></div>
+</div>
 
-      <!-- Account Cards -->
-      @for (account of accounts(); track account.accountId) {
-      <div class="col-12">
-        <div class="card">
-          <div class="card-body">
-            <!-- Account Header - Always visible and clear -->
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <div>
-                <h5 class="card-title mb-1">{{ account.accountType }}</h5>
-                <p class="text-muted mb-0 fw-bold">Account ID: {{ account.accountId }}</p>
-              </div>
-              @if (selectedAccount()?.accountId === account.accountId && account.beneficiaries &&
-              account.beneficiaries.length > 0){
-              <div>
-                <button class="btn btn-outline-primary btn-sm" type="button" (click)="onHideBeneficiariesClick()">
-                  See Less
-                </button>
-              </div>
-              }
-            </div>
-
-            <!-- Beneficiaries Preview Section with Blur-->
-            @if (selectedAccount()?.accountId !== account.accountId && account.beneficiaries &&
-            account.beneficiaries.length > 0) {
-            <div class="beneficiaries-preview-container position-relative bg-light p-3 rounded"
-              style="min-height: 180px;">
-              <!-- Fixed height container for consistent blur area -->
-              <div class="beneficiaries-preview-content" style="max-height: 180px; overflow: hidden;">
-                @for (beneficiary of account.beneficiaries; track beneficiary.beneficiaryId) {
-                <div class="beneficiary-preview-item mb-2">
-                  <p class="fw-medium mb-1">{{ beneficiary.beneficiaryName }}</p>
-                  <p class="small text-muted mb-1">Account: {{ beneficiary.beneficiaryAccNo }}</p>
-                  <p class="small text-muted mb-1">ID: {{ beneficiary.beneficiaryId }}</p>
-                  <p class="small text-muted mb-0">{{ beneficiary.accountType }} | IFSC: {{ beneficiary.ifsc }}</p>
-                </div>
-                }
-              </div>
-
-              <!-- Blur overlay -->
-              <div class="beneficiaries-blur-overlay position-absolute top-0 start-0 w-100 h-100 rounded"
-                style="backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); background-color: rgba(255, 255, 255, 0.7); z-index: 1;">
-              </div>
-
-              <!-- Centered button -->
-              <div class="beneficiaries-button-center position-absolute top-50 start-50 translate-middle"
-                style="z-index: 10;">
-                <button class="btn btn-primary shadow" type="button" (click)="onShowBeneficiariesClick(account)">
-                  Show {{ (account.beneficiaries.length || 0) }} Beneficiar{{ (account.beneficiaries.length || 0) === 1
-                  ? 'y' : 'ies' }}
-                </button>
-              </div>
-            </div>
-            } @else if (selectedAccount()?.accountId !== account.accountId && (!account.beneficiaries ||
-            account.beneficiaries.length === 0)) {
-            <!-- No beneficiaries case - Show Add Beneficiary UI directly -->
-            <div class="text-center py-5">
-              <div class="mb-3">
-                <i class="bi bi-person-plus" style="font-size: 2rem; color: #6c757d;"></i>
-              </div>
-              <p class="text-muted mb-3">No beneficiaries assigned to this account.</p>
-              <button class="btn btn-success btn-sm" (click)="openAddBeneficiaryModal(account.accountId)"
-                style="width: auto; padding: 0.4rem 0.75rem;">
-                <i class="bi bi-plus-circle me-1"></i>Add First Beneficiary
-              </button>
-            </div>
-            }
-
-            <!-- Beneficiaries Section (expanded) -->
-            @if (selectedAccount()?.accountId === account.accountId) {
-            <div class="beneficiaries-section">
-
-              @if (account.beneficiaries && account.beneficiaries.length > 0) {
-              <hr>
-              <h6 class="text-secondary mb-3">Beneficiaries for this account ({{ account.beneficiaries.length || 0 }} /
-                10)</h6>
-              @for (beneficiary of account.beneficiaries; track beneficiary.beneficiaryId) {
-              <!-- Beneficiary Card -->
-              <div class="beneficiary-card p-3 mb-3 border rounded">
-                <div class="d-flex justify-content-between align-items-center">
-                  <div class="flex-grow-1">
-                    <p class="small text-muted mb-1">Beneficiary ID: {{ beneficiary.beneficiaryId }}</p>
-                    <p class="fw-medium mb-1">Name: {{ beneficiary.beneficiaryName }}</p>
-                    <p class="small text-muted mb-1">Account Number: {{ beneficiary.beneficiaryAccNo }}</p>
-                    <p class="small text-muted mb-1">Account Type: {{ beneficiary.accountType }}</p>
-                    <p class="small text-muted mb-0">IFSC: {{ beneficiary.ifsc }}</p>
-                  </div>
-                  <div class="dropdown">
-                    <button class="btn btn-link text-dark p-0" type="button" data-bs-toggle="dropdown"
-                      aria-expanded="false">
-                      <i class="bi bi-three-dots-vertical"></i>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                      <li><a class="dropdown-item" href="#"
-                          (click)="onEditBeneficiaryClick(beneficiary); $event.preventDefault()">
-                          <i class="bi bi-pencil me-2"></i>Edit
-                        </a></li>
-                      <li><a class="dropdown-item text-danger" href="#"
-                          (click)="onDeleteBeneficiaryClick(beneficiary.beneficiaryId); $event.preventDefault()">
-                          <i class="bi bi-trash me-2"></i>Delete
-                        </a></li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-              }
-              } @else {
-              <!-- No Beneficiaries State with Add Button -->
-              <div class="text-center py-5">
-                <div class="mb-3">
-                  <i class="bi bi-person-plus" style="font-size: 2rem; color: #6c757d;"></i>
-                </div>
-                <p class="text-muted mb-3">No beneficiaries assigned to this account.</p>
-                <div class="d-inline-block">
-                  <button class="btn btn-success btn-sm" (click)="openAddBeneficiaryModal(account.accountId)">
-                    <i class="bi bi-plus-circle me-1"></i>Add First Beneficiary
+<!-- Main Content -->
+<div *ngIf="!loadingAccounts()">
+  <div *ngFor="let account of accounts()">
+    <div *ngIf="account.beneficiaries && account.beneficiaries.length > 0">
+      <h5 class="text-muted mb-3 mt-4">From Account: #{{ account.accountId }} ({{ account.accountType }})</h5>
+      <div class="row g-4">
+        <div *ngFor="let beneficiary of account.beneficiaries" class="col-md-6 col-lg-4">
+          <div class="card beneficiary-card">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start">
+                <h5 class="card-title">{{ beneficiary.beneficiaryName }}</h5>
+                <div class="dropdown">
+                  <button class="btn btn-link text-muted" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-three-dots-vertical"></i>
                   </button>
+                  <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#" (click)="onEditBeneficiaryClick(beneficiary); $event.preventDefault()">Edit</a></li>
+                    <li><a class="dropdown-item text-danger" href="#" (click)="onDeleteBeneficiaryClick(beneficiary.beneficiaryId); $event.preventDefault()">Delete</a></li>
+                  </ul>
                 </div>
               </div>
-              }
+              <div class="beneficiary-details">
+                <div><span>Account:</span> **** {{ beneficiary.beneficiaryAccNo.toString().slice(-4) }}</div>
+                <div><span>IFSC:</span> {{ beneficiary.ifsc }}</div>
+                <div><span>Type:</span> {{ beneficiary.accountType }}</div>
+              </div>
             </div>
-            }
           </div>
         </div>
       </div>
-      }
-      } @else {
-      <!-- No Accounts State -->
-      <div class="col-12 text-center py-5 text-muted">
-        <p>No accounts found.</p>
-      </div>
-      }
     </div>
   </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!hasAnyBeneficiaries()" class="text-center py-5 bg-light rounded">
+  No beneficiaries found
 </div>
+
 
 <!-- Add/Edit Beneficiary Modal -->
-@if (showBeneficiaryModal()) {
-<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-  <div class="modal-dialog modal-lg">
+<div *ngIf="showBeneficiaryModal()" class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header">
-        <div>
+      <form [formGroup]="beneficiaryForm" (ngSubmit)="saveBeneficiary()">
+        <div class="modal-header">
           <h5 class="modal-title">{{ isEditMode() ? 'Edit Beneficiary' : 'Add New Beneficiary' }}</h5>
-          <p class="text-muted small mb-0">{{ isEditMode() ? 'Update the details for your beneficiary.' : 'Enter the
-            details for the new beneficiary.' }}</p>
+          <button type="button" class="btn-close" (click)="closeModal()"></button>
         </div>
-        <button type="button" class="btn-close" (click)="closeModal()"></button>
-      </div>
-
-      @if (beneficiaryError()) {
-      <div class="alert alert-danger mx-3 mt-3 mb-0">
-        {{beneficiaryError()}}
-      </div>
-      }
-
-      <div class="modal-body">
-        <form [formGroup]="beneficiaryForm" (ngSubmit)="saveBeneficiary()">
+        <div class="modal-body">
+          <div *ngIf="beneficiaryError()" class="alert alert-danger">{{ beneficiaryError() }}</div>
           <div class="row g-3">
-
-            <!-- Account Selection (only for Add mode) -->
-            @if (!isEditMode()) {
-            <div class="col-12">
-              <label for="accountId" class="form-label">Select Account *</label>
-              <select class="form-select" id="accountId" formControlName="accountId"
-                [class.is-invalid]="isFieldInvalid('accountId')">
-                <option value="0">Select Account...</option>
-                @for (account of accounts(); track account.accountId) {
-                <option [value]="account.accountId">{{ account.accountType }} - ID: {{ account.accountId }}</option>
-                }
+            <div class="col-12" *ngIf="!isEditMode()">
+              <label class="form-label">Link to Account</label>
+              <select formControlName="accountId" class="form-select" [class.is-invalid]="isFieldInvalid('accountId')">
+                <option value="0" disabled>Select an account...</option>
+                <option *ngFor="let acc of accounts()" [value]="acc.accountId">Account #{{acc.accountId}}</option>
               </select>
-              @if (isFieldInvalid('accountId')) {
-              <div class="invalid-feedback">
-                {{ getFieldError('accountId') }}
-              </div>
-              }
             </div>
-            }
-
-            <!-- Beneficiary Name -->
             <div class="col-12">
-              <label for="beneficiaryName" class="form-label">Beneficiary Name *</label>
-              <input type="text" class="form-control" id="beneficiaryName" formControlName="beneficiaryName"
-                placeholder="Enter beneficiary's full name" [class.is-invalid]="isFieldInvalid('beneficiaryName')">
-              @if (isFieldInvalid('beneficiaryName')) {
-              <div class="invalid-feedback">
-                {{ getFieldError('beneficiaryName') }}
-              </div>
-              }
+              <label class="form-label">Beneficiary Name</label>
+              <input type="text" formControlName="beneficiaryName" class="form-control" [class.is-invalid]="isFieldInvalid('beneficiaryName')">
             </div>
-
-            <!-- Beneficiary Account Number -->
-            <div class="col-md-6">
-              <label for="beneficiaryAccNo" class="form-label">Account Number (11 digits) *</label>
-              <input type="number" class="form-control" id="beneficiaryAccNo" formControlName="beneficiaryAccNo"
-                placeholder="Enter 11-digit account number" [class.is-invalid]="isFieldInvalid('beneficiaryAccNo')">
-              @if (isFieldInvalid('beneficiaryAccNo')) {
-              <div class="invalid-feedback">
-                {{ getFieldError('beneficiaryAccNo') }}
-              </div>
-              }
-            </div>
-
-            <!-- IFSC Code -->
-            <div class="col-md-6">
-              <label for="ifsc" class="form-label">IFSC Code *</label>
-              <input type="text" class="form-control" id="ifsc" formControlName="ifsc" placeholder="e.g., SBIN0001234"
-                maxlength="11" style="text-transform: uppercase;" [class.is-invalid]="isFieldInvalid('ifsc')">
-              @if (isFieldInvalid('ifsc')) {
-              <div class="invalid-feedback">
-                {{ getFieldError('ifsc') }}
-              </div>
-              }
-            </div>
-
-            <!-- Account Type -->
             <div class="col-12">
-              <label for="accountType" class="form-label">Account Type *</label>
-              <select class="form-select" id="accountType" formControlName="accountType"
-                [class.is-invalid]="isFieldInvalid('accountType')">
-                <option value="">Select Account Type...</option>
-                <option value="SAVINGS">Savings Account</option>
-                <option value="TERM">Term Account</option>
-
+              <label class="form-label">Account Number (11 Digits)</label>
+              <input type="text" formControlName="beneficiaryAccNo" class="form-control" [class.is-invalid]="isFieldInvalid('beneficiaryAccNo')">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">IFSC Code</label>
+              <input type="text" formControlName="ifsc" class="form-control" [class.is-invalid]="isFieldInvalid('ifsc')">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Account Type</label>
+              <select formControlName="accountType" class="form-select" [class.is-invalid]="isFieldInvalid('accountType')">
+                <option value="" disabled>Select Type...</option>
+                <option value="SAVINGS">Savings</option>
+                <option value="TERM">Term</option>
               </select>
-              @if (isFieldInvalid('accountType')) {
-              <div class="invalid-feedback">
-                {{ getFieldError('accountType') }}
-              </div>
-              }
             </div>
           </div>
-
-          <div class="modal-footer mt-4">
-            <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
-            <button type="submit" class="btn btn-primary"
-              [disabled]="!beneficiaryForm.valid || beneficiaryForm.pending">
-              {{ isEditMode() ? 'Update' : 'Save' }} Beneficiary
-            </button>
-          </div>
-        </form>
-      </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="beneficiaryForm.invalid">Save</button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
-}
 
-<!-- Find Beneficiary Modal -->
-@if (showFindBeneficiaryModal()) {
-<div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <div>
-          <h5 class="modal-title">Find Beneficiary</h5>
-          <p class="text-muted small mb-0">Enter a beneficiary ID to find their details.</p>
-        </div>
-        <button type="button" class="btn-close" (click)="closeModal()"></button>
-      </div>
-      <div class="modal-body">
-        <form [formGroup]="findBeneficiaryForm">
-          <div class="mb-3">
-            <label for="beneficiaryId" class="form-label">Beneficiary ID *</label>
-            <div class="input-group">
-              <input type="text" class="form-control" id="beneficiaryId" formControlName="beneficiaryId"
-                placeholder="Enter beneficiary ID"
-                [class.is-invalid]="isFieldInvalid('beneficiaryId', findBeneficiaryForm)">
-              <button class="btn btn-primary" type="button" (click)="findBeneficiaryById()">
-                Find
-              </button>
-            </div>
-            @if (isFieldInvalid('beneficiaryId', findBeneficiaryForm)) {
-            <div class="invalid-feedback d-block">
-              {{ getFieldError('beneficiaryId', findBeneficiaryForm) }}
-            </div>
-            }
-          </div>
-        </form>
-
-        <!-- Found Beneficiary Display -->
-        @if (foundBeneficiary()) {
-        <div class="beneficiary-card p-3 mt-3">
-          <h6 class="fw-semibold text-dark">{{ foundBeneficiary()?.beneficiaryName }}</h6>
-          @if (linkedAccount()) {
-          <p class="small text-muted mb-1">Linked Account: {{ linkedAccount()!.accountType }} - ID: {{
-            linkedAccount()!.accountId }}</p>
-          }
-          <p class="small text-muted mb-1">Account Number: {{ foundBeneficiary()?.beneficiaryAccNo }}</p>
-          <p class="small text-muted mb-1">Account Type: {{ foundBeneficiary()?.accountType }}</p>
-          <p class="small text-muted mb-0">IFSC: {{ foundBeneficiary()?.ifsc }}</p>
-        </div>
-        } @else if (searched() && !loadingFindBeneficiary()) {
-        <!-- Not Found Message -->
-        <div class="alert alert-danger mt-3">
-          No beneficiary found with that ID.
-        </div>
-        }
-
-        <!-- Loading State -->
-        @if (loadingFindBeneficiary()) {
-        <div class="text-center py-3">
-          <div class="spinner-border spinner-border-sm mb-2" role="status">
-            <span class="visually-hidden">Loading...</span>
-          </div>
-          <p class="small text-muted">Searching...</p>
-        </div>
-        }
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="closeModal()">Close</button>
-      </div>
-    </div>
-  </div>
-</div>
-}

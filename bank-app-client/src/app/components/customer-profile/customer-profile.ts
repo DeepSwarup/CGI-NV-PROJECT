@@ -1,110 +1,103 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Profile, ProfileInfo } from '../../services/profile/profile';
-import { Auth } from '../../services/auth/auth';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router'; // Import the Router
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-customer-profile',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './customer-profile.html',
-  styleUrl: './customer-profile.css'
+  styleUrls: ['./customer-profile.css']
 })
-export class CustomerProfile implements OnInit{
-
-  profileForm: FormGroup;
-  profile: ProfileInfo | null = null;
-  isEditMode = false;
-  isLoading = true;
-  role: 'CUSTOMER' | 'ADMIN' | null = null;
-  
-  // Inject services
+export class CustomerProfile implements OnInit {
   private fb = inject(FormBuilder);
   private profileService = inject(Profile);
-  private authService = inject(Auth);
-  private router = inject(Router); // Inject the Router
+  private router = inject(Router);
+
+  profileForm: FormGroup;
+  profile = signal<ProfileInfo | null>(null);
+  isEditMode = signal(false);
+  isLoading = signal(true);
+  showDeleteModal = signal(false);
 
   constructor() {
     this.profileForm = this.fb.group({
       phoneNo: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
       age: ['', [Validators.required, Validators.min(18), Validators.max(120)]],
-      gender: ['', [Validators.required]]
+      gender: ['', Validators.required]
     });
   }
 
   ngOnInit(): void {
-    this.authService.currentUser$.subscribe(user => {
-      this.role = user?.role || null;
-    });
+    this.loadProfile();
+  }
 
+  loadProfile() {
+    this.isLoading.set(true);
     this.profileService.getProfile().subscribe({
       next: (profile) => {
-        this.profile = profile;
-        this.isLoading = false;
-        if (profile) {
-          this.profileForm.patchValue(profile);
-        }
+        this.profile.set(profile);
+        this.profileForm.patchValue(profile);
+        this.isEditMode.set(false); // Start in view mode
+        this.isLoading.set(false);
       },
       error: () => {
-        this.isLoading = false;
+        this.profile.set(null);
+        this.isEditMode.set(true); // No profile exists, start in edit/create mode
+        this.isLoading.set(false);
       }
     });
   }
 
   onSubmit() {
-    if (this.profileForm.invalid) return;
-
-    // Determine if we are creating a new profile BEFORE the API call
-    const isCreatingNewProfile = !this.profile;
-
+    if (this.profileForm.invalid) {
+      this.profileForm.markAllAsTouched();
+      return;
+    }
+    
     const data = this.profileForm.value as ProfileInfo;
-    const action = isCreatingNewProfile 
-      ? this.profileService.createProfile(data) 
-      : this.profileService.updateProfile(data);
+    const action = this.profile()
+      ? this.profileService.updateProfile(data)
+      : this.profileService.createProfile(data);
 
     action.subscribe({
       next: () => {
-        // After success, if we were creating a new profile, redirect.
-        if (isCreatingNewProfile) {
-          alert('Profile created successfully! Redirecting to your dashboard.');
-          this.router.navigate(['/dashboard']); // <-- THIS IS THE NEW LINE
-        } else {
-          // If just updating, update local state
-          this.profile = data;
-          this.isEditMode = false;
-          alert('Profile updated successfully!');
+        const wasCreating = !this.profile();
+        this.profile.set(data);
+        this.isEditMode.set(false);
+        if (wasCreating) {
+          // If they just created their profile, send them to the dashboard
+          this.router.navigate(['/dashboard']);
         }
       },
-      error: (e) => {
-        console.error("Could not save profile: " + e.message);
-        alert("Error: Could not save profile.");
-      }
+      error: (e) => alert(`Failed to save profile: ${e.message}`)
+    });
+  }
+
+  onDelete() {
+    this.profileService.deleteProfile().subscribe({
+      next: () => {
+        this.profile.set(null);
+        this.profileForm.reset();
+        this.isEditMode.set(true); // Go back to create mode
+        this.showDeleteModal.set(false);
+      },
+      error: (e) => alert(`Delete failed: ${e.message}`)
     });
   }
 
   startEdit() {
-    this.isEditMode = true;
-  }
-  
-  cancelEdit() {
-    this.isEditMode = false;
-    if (this.profile) {
-      this.profileForm.patchValue(this.profile);
-    }
+    this.isEditMode.set(true);
   }
 
-  onDelete() {
-    if (confirm('Are you sure you want to delete your profile?')) {
-      this.profileService.deleteProfile().subscribe({
-        next: () => {
-          this.profile = null;
-          this.profileForm.reset();
-          alert('Profile deleted.');
-        },
-        error: (e) => alert("Delete Failed: " + e.message)
-      });
+  cancelEdit() {
+    // If a profile exists, reset the form to its values and exit edit mode
+    if (this.profile()) {
+      this.profileForm.patchValue(this.profile()!);
+      this.isEditMode.set(false);
     }
   }
 }
+
