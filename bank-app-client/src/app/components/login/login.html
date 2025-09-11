@@ -32,6 +32,9 @@
       </div>
 
       <div class="card-body">
+        <div *ngIf="loginError()" class="alert alert-danger mb-3">
+          {{ loginError() }}
+        </div>
         <!-- Form -->
         <form (ngSubmit)="onLogin()">
           <div class="mb-3">
