@@ -18,6 +18,22 @@ export class BeneficiaryService {
     });
   }
 
+  listAllBeneficiaries(accountId: number): Observable<Beneficiary[]> {
+  const headers = this.getHeaders();
+  return this.http.get<Beneficiary[]>(`${environment.beneficiariesUrl}/account/${accountId}`, { headers })
+    .pipe(
+      catchError(err => {
+        if (err.status === 404) {
+          console.log(`No beneficiaries found for account ${accountId}`);
+          return of([]);
+        }
+        console.error(`Error fetching beneficiaries for account ${accountId}:`, err);
+        return of([]);
+      })
+    );
+}
+
+
   fetchAccountsWithBeneficiaries(): Observable<Account[]> {
     console.log('Fetching customer and accounts...');
 

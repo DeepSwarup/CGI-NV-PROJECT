@@ -40,14 +40,22 @@ public class AccountController {
     @PostMapping("/transfer")
     public ResponseEntity<TransactionResponse> transferMoney(
             HttpServletRequest request,
-            @RequestParam Long senderAccountId,
-            @RequestParam Long receiverAccountId,
-            @RequestParam double amount) {
-        Long userId = (Long) request.getAttribute("userId");
-        return ResponseEntity.ok(accountService.transferMoney(
-                senderAccountId, receiverAccountId, amount, "", ""));
+            @RequestBody TransferRequest transferRequest) {
+        
+        // The service method you already have is perfect for this.
+        // We pass empty strings for username/password as they are not used with JWT auth.
+        TransactionResponse transaction = accountService.transferMoney(
+                transferRequest.getSenderAccountId(), 
+                transferRequest.getReceiverAccountId(), 
+                transferRequest.getAmount(), "", "");
+                
+        // Optionally update the remarks from the request
+        transaction.setTransactionRemarks(transferRequest.getRemarks());
+
+        return ResponseEntity.ok(transaction);
     }
 
+    
     @PostMapping("/withdraw")
     public ResponseEntity<TransactionResponse> withdraw(
             HttpServletRequest request,

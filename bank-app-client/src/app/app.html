@@ -1,4 +1,60 @@
-<!-- <app-navbar></app-navbar> -->
+<div *ngIf="!isAuthenticated; else dashboardLayout">
+  <!-- This router-outlet will render HomeComponent, LoginComponent, etc. -->
+  <router-outlet></router-outlet>
+</div>
 
-<!-- <h1>{{title}}</h1> -->
-<router-outlet />
+<ng-template #dashboardLayout>
+  <div class="dashboard-layout">
+    <!-- Vertical Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <i class="bi bi-bank2"></i>
+        <span>BankApp</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a routerLink="/dashboard" routerLinkActive="active">
+          <i class="bi bi-grid-1x2-fill"></i>
+          <span>Overview</span>
+        </a>
+        <a routerLink="/accounts" routerLinkActive="active">
+          <i class="bi bi-wallet2"></i>
+          <span>Accounts</span>
+        </a>
+        <a routerLink="/transactions" routerLinkActive="active">
+          <i class="bi bi-arrow-down-up"></i>
+          <span>Transactions</span>
+        </a>
+        <a routerLink="/beneficiaries" routerLinkActive="active">
+          <i class="bi bi-people-fill"></i>
+          <span>Beneficiaries</span>
+        </a>
+        <a routerLink="/profile" routerLinkActive="active">
+          <i class="bi bi-person-circle"></i>
+          <span>Profile</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+      <header class="top-bar">
+        <!-- Top bar content can go here if needed -->
+        <div class="user-menu ms-auto dropdown">
+          <button class="btn user-avatar" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            {{ userNameInitial }}
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" routerLink="/profile">Profile</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><button class="dropdown-item" (click)="logout()">Log Out</button></li>
+          </ul>
+        </div>
+      </header>
+      
+      <!-- The current page will be rendered here -->
+      <main class="content-area">
+        <router-outlet></router-outlet>
+      </main>
+    </div>
+  </div>
+</ng-template>

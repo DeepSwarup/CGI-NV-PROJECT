@@ -1,0 +1,56 @@
+/* Status Dots */
+.status-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.status-dot-green { background-color: #198754; }
+.status-dot-orange { background-color: #fd7e14; }
+.status-dot-red { background-color: #dc3545; }
+
+/* General Card Styles */
+.card {
+  border: 1px solid #e9ecef;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.card-title {
+  font-weight: 600;
+}
+
+/* Account Item in Your Accounts Card */
+.account-item {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+.account-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+/* Transaction Item in Recent Transactions Card */
+.transaction-item {
+  padding: 0.75rem 0;
+}
+
+.transaction-item .icon-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+.bg-success-light { background-color: rgba(25, 135, 84, 0.1); }
+.bg-danger-light { background-color: rgba(220, 53, 69, 0.1); }
+
+/* Quick Actions Card */
+.btn-outline-primary.text-start {
+  text-align: left !important;
+  display: flex;
+  align-items: center;
+}

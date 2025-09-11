@@ -1,9 +1,12 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
-import {jwtDecode} from 'jwt-decode';
+import { BehaviorSubject, Observable, tap, switchMap, catchError, of, map } from 'rxjs';
+import { jwtDecode } from 'jwt-decode';
+import { environment } from '../../../environments/environment';
+import { Profile } from '../profile/profile';
 
+// Interfaces remain the same...
 interface User {
   name: string;
   email: string;
@@ -30,89 +33,98 @@ interface JwtPayload {
   exp: number;
 }
 
+
 @Injectable({
   providedIn: 'root'
 })
 export class Auth {
 
-  private apiUrl = 'http://localhost:8080/bank-api';
-
+  private apiUrl = `${environment.apiBaseUrl}/auth`;
   private currentUserSubject = new BehaviorSubject<User | null>(null);
-  currentUser$: Observable<User| null> = this.currentUserSubject.asObservable();
+  currentUser$: Observable<User | null> = this.currentUserSubject.asObservable();
 
-  constructor(private router: Router, private http: HttpClient){
+  private http = inject(HttpClient);
+  private router = inject(Router);
+  private profileService = inject(Profile);
+
+  constructor() {
     const token = localStorage.getItem('token');
-    if(token){
-      const user = this.decodeToken(token)
-      if (user && user.exp*1000> Date.now()){
-        this.currentUserSubject.next(user)
-      }else{
-        this.logout()
+    if (token) {
+      const user = this.decodeToken(token);
+      if (user && user.exp * 1000 > Date.now()) {
+        this.currentUserSubject.next(user);
+      } else {
+        this.logout();
       }
     }
   }
 
-  signup(data: SignupData): Observable<any>{
-
-    return this.http.post(`${this.apiUrl}/auth/signup`, data).pipe(
-      tap(()=>this.router.navigate(['/login']))
-    )
-
+  signup(data: SignupData): Observable<any> {
+    return this.http.post(`${this.apiUrl}/signup`, data).pipe(
+      tap(() => this.router.navigate(['/login']))
+    );
   }
 
-  login(data: LoginData): Observable<{token: string}>{
-    console.log("service login data", data)
-    return this.http.post<{ token: string }>(
-      `${this.apiUrl}/auth/login`,
-      data,
-      {headers: {"Content-Type": "application/json"}}
-    )
-    .pipe(
-      tap(response=>{
-        localStorage.setItem('token', response.token)
-        const user = this.decodeToken(response.token)
-        this.currentUserSubject.next(user)
-        this.router.navigate(['/profile'])
+  // V V V V V THIS IS THE MODIFIED LOGIN LOGIC V V V V V
+  login(data: LoginData): Observable<{ token: string }> {
+    return this.http.post<{ token: string }>(`${this.apiUrl}/login`, data).pipe(
+      tap(response => {
+        // Step 1: Save token and decode user info
+        localStorage.setItem('token', response.token);
+        const user = this.decodeToken(response.token);
+        this.currentUserSubject.next(user);
+
+        // Step 2: Check the user's role and redirect
+        if (user?.role === 'ADMIN') {
+          // If user is an ADMIN, go directly to the admin dashboard
+          this.router.navigate(['/admin/dashboard']);
+        } 
+        else if (user?.role === 'CUSTOMER') {
+          // If user is a CUSTOMER, perform the profile check
+          this.profileService.getProfile().subscribe({
+            next: () => {
+              // Profile exists, go to customer dashboard
+              this.router.navigate(['/dashboard']);
+            },
+            error: (err) => {
+              // Profile does not exist, go to create profile page
+              if (err.status === 404 || err.status === 409) {
+                this.router.navigate(['/create-profile']);
+              }
+            }
+          });
+        }
+        else {
+          // Fallback for safety
+          this.router.navigate(['/']);
+        }
       })
-    )
+    );
   }
 
-  logout():void{
-    localStorage.removeItem('token')
-    this.currentUserSubject.next(null)
-    this.router.navigate(['/'])
+  logout(): void {
+    localStorage.removeItem('token');
+    this.currentUserSubject.next(null);
+    this.router.navigate(['/']);
   }
 
   isAuthenticated(): boolean {
     const token = localStorage.getItem('token');
     if (!token) return false;
     const user = this.decodeToken(token);
-    return user!=null ? (user.exp*1000> Date.now() ? true: false) : false
+    return user != null ? (user.exp * 1000 > Date.now() ? true : false) : false
   }
 
   getRole(): 'CUSTOMER' | 'ADMIN' | null {
     return this.currentUserSubject.value?.role || null
   }
-
-  getUsers():Observable<User[]>{
-    return this.http.get<User[]>(`${this.apiUrl}/admin`);
-  }
-
+  
   private decodeToken(token: string): JwtPayload | null {
-    try{
-      const payload = jwtDecode<JwtPayload>(token)
-      console.log(payload)
-      return {
-        name: payload.name,
-        email: payload.email,
-        role: payload.role,
-        sub: payload.sub,
-        exp: payload.exp
-      }
-    }catch (e){
-      console.log("error occcured uppon decoding",e)
-      return null
+    try {
+      return jwtDecode<JwtPayload>(token);
+    } catch (e) {
+      console.error("Failed to decode token", e);
+      return null;
     }
   }
-  
 }

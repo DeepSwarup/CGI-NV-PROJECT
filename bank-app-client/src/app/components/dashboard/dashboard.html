@@ -1,46 +1,105 @@
-<div class="container mt-5">
-  <h1>All Users</h1>
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Role</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let user of users">
-        <td>{{ user.name }}</td>
-        <td>{{ user.email }}</td>
-        <td>{{ user.role }}</td>
-      </tr>
-    </tbody>
-  </table>
+<div *ngIf="!isLoading()">
+    <!-- Welcome Header -->
+    <h1 class="mb-1">Welcome back, {{ userName() }}!</h1>
+    <p class="text-muted mb-4">Let's get your account set up.</p>
 
+    <div class="row g-4">
+        <!-- Left Column -->
+        <div class="col-lg-8">
+            <!-- Account Setup Card -->
+            <div class="card card-body mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="mb-0">Let's Get Your Account Set Up</h5>
+                    <span class="text-muted small">{{ setupProgress() / 50 }} of 2 completed</span>
+                </div>
+                <div class="progress" style="height: 8px;"><div class="progress-bar" [style.width.%]="setupProgress()"></div></div>
+                <ul class="list-group list-group-flush mt-3">
+                    <li class="list-group-item d-flex align-items-center ps-0">
+                        <i class="bi me-3 fs-4" [ngClass]="isProfileComplete() ? 'bi-check-circle-fill text-success' : 'bi-circle'"></i>
+                        <div class="flex-grow-1">
+                            Complete Your Profile <p class="small text-muted mb-0">Add your personal details.</p>
+                        </div>
+                        <button *ngIf="!isProfileComplete()" class="btn btn-primary btn-sm" (click)="navigate('/profile')">Complete</button>
+                    </li>
+                    <li class="list-group-item d-flex align-items-center ps-0">
+                        <i class="bi me-3 fs-4" [ngClass]="hasAddedNominee() ? 'bi-check-circle-fill text-success' : 'bi-circle'"></i>
+                        <div class="flex-grow-1">
+                            Add a Nominee <p class="small text-muted mb-0">Secure your accounts by adding nominees.</p>
+                        </div>
+                        <button *ngIf="!hasAddedNominee()" class="btn btn-primary btn-sm" (click)="navigate('/nominees')">Add</button>
+                    </li>
+                </ul>
+            </div>
 
-    <h1>All Customers</h1>
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>CustomerId</th>
-        <th>PhoneNo</th>
-        <th>Age</th>
-        <th>gender</th>
-        <th>Email</th>
-        <th>GetDetails</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let customer of customers">
-        <td>{{ customer.customerId}}</td>
-        <td>{{ customer.phoneNo }}</td>
-        <td>{{ customer.age }}</td>
-        <td>{{ customer.gender }}</td>
-        <td>{{ customer.email }}</td>
-            <td>
-      <a [routerLink]="['/customer', customer.customerId]">View Details</a>
-    </td>
-      </tr>
-    </tbody>
-  </table>
+            <div class="row g-4">
+                <!-- Your Accounts & Recent Transactions -->
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Your Accounts</h5>
+                            <p class="card-subtitle mb-3 text-muted">Summary of current accounts.</p>
+                            <div *ngIf="accounts().length > 0; else noAccounts">
+                                <div *ngFor="let acc of accounts()" class="account-item">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <div class="fw-bold d-flex align-items-center">
+                                                {{ acc.accountType }} Account <span class="status-dot ms-2" [ngClass]="getAccountStatusClass(acc.status)"></span>
+                                            </div>
+                                            <div class="text-muted small">ID: {{ acc.accountId }}</div>
+                                        </div>
+                                        <div class="text-end">
+                                            <div class="fw-bold">{{ acc.balance | currency:'INR' }}</div>
+                                            <div class="text-muted small">{{ acc.interestRate }}% p.a.</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <ng-template #noAccounts><p class="text-muted fst-italic">No accounts yet.</p></ng-template>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Recent Transactions</h5>
+                            <div *ngIf="recentTransactions().length > 0; else noTransactions">
+                                <ul class="list-unstyled">
+                                    <li *ngFor="let tx of recentTransactions()" class="transaction-item">
+                                        <div class="d-flex"><div class="icon-circle" [ngClass]="{'bg-success-light text-success': tx.transactiontype === 'DEPOSIT', 'bg-danger-light text-danger': tx.transactiontype !== 'DEPOSIT'}"><i class="bi" [ngClass]="{'bi-arrow-down': tx.transactiontype === 'DEPOSIT', 'bi-arrow-up': tx.transactiontype !== 'DEPOSIT'}"></i></div><div class="flex-grow-1 ms-3"><div class="fw-bold">{{ tx.transactionRemarks }}</div><div class="small text-muted">{{ tx.transactionDateandTime | date:'mediumDate' }}</div></div><div class="fw-bold" [ngClass]="{'text-success': tx.transactiontype === 'DEPOSIT', 'text-danger': tx.transactiontype !== 'DEPOSIT'}">{{ tx.amount | currency:'INR' }}</div></div>
+                                    </li>
+                                </ul>
+                            </div>
+                            <ng-template #noTransactions><p class="text-muted fst-italic">No recent transactions.</p></ng-template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Quick Actions</h5>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary text-start" (click)="openModal('transfer')"><i class="bi bi-send-fill me-2"></i>Transfer Money</button>
+                        <button class="btn btn-outline-primary text-start" (click)="openModal('account')"><i class="bi bi-plus-circle-fill me-2"></i>Create New Account</button>
+                        <button class="btn btn-outline-primary text-start" (click)="navigate('/beneficiaries')"><i class="bi bi-person-plus-fill me-2"></i>Add Beneficiary</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+
+<!-- Create Account Modal -->
+<div *ngIf="showAccountModal()" class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content"><form [formGroup]="accountForm" (ngSubmit)="createAccount()"><div class="modal-header"><h5 class="modal-title">Create New Bank Account</h5><button type="button" class="btn-close" (click)="closeModal()"></button></div><div class="modal-body"><div class="mb-3"><label class="form-label">Account Type</label><select formControlName="accountType" class="form-select"><option value="SAVINGS">Savings</option><option value="TERM">Term (Fixed)</option></select></div><div class="mb-3"><label class="form-label">Initial Deposit</label><input type="number" formControlName="initialDeposit" class="form-control"></div><div *ngIf="accountForm.get('accountType')?.value === 'SAVINGS'"><div class="mb-3"><label class="form-label">Minimum Balance</label><input type="number" formControlName="minBalance" class="form-control"></div></div><div *ngIf="accountForm.get('accountType')?.value === 'TERM'"><div class="mb-3"><label class="form-label">Term Amount</label><input type="number" formControlName="amount" class="form-control"></div><div class="mb-3"><label class="form-label">Duration (Months)</label><input type="number" formControlName="months" class="form-control"></div></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button><button type="submit" class="btn btn-primary" [disabled]="accountForm.invalid">Submit for Approval</button></div></form></div></div>
+</div>
+
+<!-- Transfer Money Modal -->
+<div *ngIf="showTransferModal()" class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content"><form [formGroup]="transferForm" (ngSubmit)="executeTransfer()"><div class="modal-header"><h5 class="modal-title">Transfer Money</h5><button type="button" class="btn-close" (click)="closeModal()"></button></div><div class="modal-body"><div *ngIf="transferError()" class="alert alert-danger">{{ transferError() }}</div><div class="mb-3"><label class="form-label">From Account</label><select formControlName="senderAccountId" class="form-select"><option *ngFor="let acc of accounts()" [value]="acc.accountId" [disabled]="acc.status !== 'ACTIVE'">{{ acc.accountType }} Account (#{{acc.accountId}}) - {{acc.balance | currency:'INR'}}</option></select></div><div class="mb-3"><label class="form-label">To Account / Beneficiary</label><select formControlName="receiverAccountId" class="form-select"><option *ngFor="let target of transferTargets()" [value]="target.id">{{ target.name }}</option></select></div><div class="mb-3"><label class="form-label">Amount</label><input type="number" formControlName="amount" class="form-control"></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button><button type="submit" class="btn btn-primary" [disabled]="transferForm.invalid">Send Money</button></div></form></div></div>
+</div>
+

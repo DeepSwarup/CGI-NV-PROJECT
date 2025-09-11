@@ -1,5 +1,6 @@
 package com.bank.bankApp.dtos;
 
+import com.bank.bankApp.enums.AccountStatus;
 import com.bank.bankApp.enums.AccountType;
 import java.time.LocalDate;
 
@@ -9,18 +10,20 @@ public class AccountResponse {
     private double balance;
     private LocalDate dateOfOpening;
     private AccountType accountType;
+    private AccountStatus status;
     private Long customerId;
 
     // Constructors
     public AccountResponse() {}
 
     public AccountResponse(Long accountId, double interestRate, double balance, 
-                          LocalDate dateOfOpening, AccountType accountType, Long customerId) {
+                          LocalDate dateOfOpening, AccountType accountType , AccountStatus status, Long customerId) {
         this.accountId = accountId;
         this.interestRate = interestRate;
         this.balance = balance;
         this.dateOfOpening = dateOfOpening;
         this.accountType = accountType;
+        this.status = status;
         this.customerId = customerId;
     }
 
@@ -40,6 +43,9 @@ public class AccountResponse {
     public AccountType getAccountType() { return accountType; }
     public void setAccountType(AccountType accountType) { this.accountType = accountType; }
 
+     public AccountStatus getStatus() { return status; } // Getter for status
+    public void setStatus(AccountStatus status) { this.status = status; }
+
     public Long getCustomerId() { return customerId; }
     public void setCustomerId(Long customerId) { this.customerId = customerId; }
 
@@ -54,6 +60,7 @@ public class AccountResponse {
         private double balance;
         private LocalDate dateOfOpening;
         private AccountType accountType;
+        private AccountStatus status;
         private Long customerId;
 
         public AccountResponseBuilder accountId(Long accountId) {
@@ -80,6 +87,10 @@ public class AccountResponse {
             this.accountType = accountType;
             return this;
         }
+        public AccountResponseBuilder status(AccountStatus status) {
+            this.status = status;
+            return this;
+        }
 
         public AccountResponseBuilder customerId(Long customerId) {
             this.customerId = customerId;
@@ -87,7 +98,7 @@ public class AccountResponse {
         }
 
         public AccountResponse build() {
-            return new AccountResponse(accountId, interestRate, balance, dateOfOpening, accountType, customerId);
+            return new AccountResponse(accountId, interestRate, balance, dateOfOpening, accountType, status, customerId);
         }
     }
 }
