@@ -4,6 +4,7 @@ import { Observable, of, switchMap } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Account } from '../models/account';
 import { Customer } from '../models/customer';
+import { Transaction } from '../models/transaction.model';
 
 @Injectable({
   providedIn: 'root'
@@ -26,27 +27,10 @@ export class AccountService {
       })
     );
   }
-
-   transferMoney(
-  transferData: { senderAccountId: number; receiverAccountId: number; amount: number },
-  token: string
-): Observable<any> {
-  const headers = new HttpHeaders({
-    Authorization: `Bearer ${token}`
-  });
-
-  const params = new HttpParams()
-    .set('senderAccountId', transferData.senderAccountId)
-    .set('receiverAccountId', transferData.receiverAccountId)
-    .set('amount', transferData.amount);
-
-  return this.http.post(`${this.baseUrl}/transfer`, null, {
-    headers,
-    params
-  });
-}
-
-
+transferMoney(transferData: { senderAccountId: number; receiverAccountId: number; amount: number; remarks: string }): Observable<Transaction> {
+    // The second argument here IS the request body. No need for HttpParams or manual headers.
+    return this.http.post<Transaction>(`${this.baseUrl}/transfer`, transferData);
+  }
   // Create a new savings account
   createSavingsAccount(data: { customerId: number; initialDeposit: number; minBalance: number }): Observable<Account> {
     return this.http.post<Account>(`${this.baseUrl}/savings`, data);

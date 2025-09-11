@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import com.bank.bankApp.utils.AccountNumberGenerator;
 
 @Service
 public class AccountService implements IAccountService {
@@ -32,6 +33,17 @@ public class AccountService implements IAccountService {
 
     @Autowired
     private TransactionRepository transactionRepository;
+
+    @Autowired
+    private AccountNumberGenerator accountNumberGenerator;
+
+    private Long generateUniqueAccountNumber() {
+        long newAccountId;
+        do {
+            newAccountId = accountNumberGenerator.generate();
+        } while (accountRepository.existsById(newAccountId)); // Keep generating until a unique one is found
+        return newAccountId;
+    }
 
    @Override
     @Transactional
@@ -72,7 +84,7 @@ public class AccountService implements IAccountService {
                 .customer(customer)
                 .fine(0.0)
                 .build();
-        
+        account.setAccountId(generateUniqueAccountNumber());
         account.setStatus(AccountStatus.PENDING);
 
         SavingsAccount savedAccount = accountRepository.save(account);
@@ -98,7 +110,7 @@ public class AccountService implements IAccountService {
                 .customer(customer)
                 .penaltyAmount(0.0)
                 .build();
-
+ account.setAccountId(generateUniqueAccountNumber());
         account.setStatus(AccountStatus.PENDING); // Set initial status to PENDING
 
         TermAccount savedAccount = accountRepository.save(account);

@@ -13,7 +13,7 @@ import { Account } from '../../models/account';
 import { Transaction } from '../../models/transaction.model';
 import { Beneficiary } from '../../models/beneficiary';
 
-const token = localStorage.getItem('authToken') || '';
+// const token = localStorage.getItem('authToken') || '';
 
 @Component({
   selector: 'app-dashboard',
@@ -74,6 +74,7 @@ export class Dashboard implements OnInit {
       senderAccountId: ['', Validators.required],
       receiverAccountId: ['', Validators.required],
       amount: ['', [Validators.required, Validators.min(1)]],
+      remarks: [''], 
     });
   }
 
@@ -149,13 +150,14 @@ export class Dashboard implements OnInit {
     if (this.transferForm.invalid) return;
     this.transferError.set(null);
 
-    this.accountService.transferMoney(this.transferForm.value,token).subscribe({
+    this.accountService.transferMoney(this.transferForm.value).subscribe({
       next: () => {
         alert('Transfer successful!');
         this.closeModal();
         this.loadDashboardData();
       },
-      error: (err: { error: { message: any; }; }) => this.transferError.set(err.error?.message || 'Transfer failed.')
+      // Simplified error handling
+      error: (err: any) => this.transferError.set(err.error?.message || 'Transfer failed.')
     });
   }
 

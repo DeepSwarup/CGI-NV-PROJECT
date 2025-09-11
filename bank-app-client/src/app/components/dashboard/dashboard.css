@@ -33,6 +33,11 @@
 /* Transaction Item in Recent Transactions Card */
 .transaction-item {
   padding: 0.75rem 0;
+  border-bottom: 1px solid #f8f9fa;
+}
+.transaction-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
 }
 
 .transaction-item .icon-circle {
@@ -49,8 +54,14 @@
 .bg-danger-light { background-color: rgba(220, 53, 69, 0.1); }
 
 /* Quick Actions Card */
-.btn-outline-primary.text-start {
+.btn-light.text-start {
   text-align: left !important;
   display: flex;
   align-items: center;
+  font-weight: 500;
+  color: #343a40;
 }
+.btn-light.text-start:hover {
+  background-color: #e9ecef;
+}
+

@@ -37,59 +37,37 @@ public class AccountController {
         AccountResponse accountResponse = accountService.addTermAccount(termRequest);
         return new ResponseEntity<>(accountResponse, HttpStatus.CREATED);
     }
-    @PostMapping("/transfer")
-    public ResponseEntity<TransactionResponse> transferMoney(
-            HttpServletRequest request,
-            @RequestBody TransferRequest transferRequest) {
-        
-        // The service method you already have is perfect for this.
-        // We pass empty strings for username/password as they are not used with JWT auth.
+     @PostMapping("/transfer")
+    public ResponseEntity<TransactionResponse> transferMoney(@RequestBody TransferRequest transferRequest) {
+        // We pass empty strings for username/password as they are not used with JWT auth
         TransactionResponse transaction = accountService.transferMoney(
-                transferRequest.getSenderAccountId(), 
-                transferRequest.getReceiverAccountId(), 
+                transferRequest.getSenderAccountId(),
+                transferRequest.getReceiverAccountId(),
                 transferRequest.getAmount(), "", "");
-                
-        // Optionally update the remarks from the request
-        transaction.setTransactionRemarks(transferRequest.getRemarks());
 
         return ResponseEntity.ok(transaction);
     }
 
-    
+
     @PostMapping("/withdraw")
-    public ResponseEntity<TransactionResponse> withdraw(
-            HttpServletRequest request,
-            @RequestParam Long accountId,
-            @RequestParam double amount) {
-        Long userId = (Long) request.getAttribute("userId");
+    public ResponseEntity<TransactionResponse> withdraw(@RequestParam Long accountId, @RequestParam double amount) {
         return ResponseEntity.ok(accountService.withdraw(accountId, amount, "", ""));
     }
 
     @PostMapping("/deposit")
-    public ResponseEntity<TransactionResponse> deposit(
-            HttpServletRequest request,
-            @RequestParam Long accountId,
-            @RequestParam double amount) {
-        Long userId = (Long) request.getAttribute("userId");
+    public ResponseEntity<TransactionResponse> deposit(@RequestParam Long accountId, @RequestParam double amount) {
         return ResponseEntity.ok(accountService.deposit(accountId, amount));
     }
 
     @GetMapping("/{accountId}")
-    public ResponseEntity<AccountResponse> findAccountById(
-            HttpServletRequest request,
-            @PathVariable Long accountId) {
-        Long userId = (Long) request.getAttribute("userId");
+    public ResponseEntity<AccountResponse> findAccountById(@PathVariable Long accountId) {
         return ResponseEntity.ok(accountService.findAccountById(accountId));
     }
 
     @GetMapping("/customer/{customerId}")
-    public ResponseEntity<Set<AccountResponse>> viewAccounts(
-            HttpServletRequest request,
-            @PathVariable Long customerId) {
-        Long userId = (Long) request.getAttribute("userId");
+    public ResponseEntity<?> viewAccounts(@PathVariable Long customerId) {
         return ResponseEntity.ok(accountService.viewAccounts(customerId));
     }
-
     @GetMapping("/savings/{customerId}")
     public ResponseEntity<AccountResponse> viewSavingAcc(
             HttpServletRequest request,
