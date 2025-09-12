@@ -3,14 +3,31 @@ import { CommonModule } from '@angular/common';
 import { AdminService } from '../../services/admin.service';
 import { Account } from '../../models/account';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Routes } from '@angular/router';
+import { InterestLogComponent } from '../interest-log/interest-log';
+import { RouterLink } from '@angular/router';
+
+const routes: Routes = [
+  {
+    path: 'admin',
+    children: [
+      { path: 'interest-log', component: InterestLogComponent }
+    ]
+  }
+];
+
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './admin-dashboard.html',
   styleUrls: ['./admin-dashboard.css']
 })
+
+
+
+
 export class AdminDashboardComponent implements OnInit {
   private adminService = inject(AdminService);
   private fb = inject(FormBuilder);
@@ -60,6 +77,19 @@ export class AdminDashboardComponent implements OnInit {
         console.error(err);
       }
     });
+  }
+
+
+  creditInterest(accountId: number) {
+    if (confirm(`Are you sure you want to calculate and credit interest for Account #${accountId}?`)) {
+      this.adminService.creditInterest(accountId).subscribe({
+        next: () => {
+          alert('Interest credited successfully!');
+          this.loadAccounts(); // Refresh the list to show the new balance
+        },
+        error: (err) => alert(`Error: ${err.error?.message || 'Could not credit interest.'}`)
+      });
+    }
   }
 
   approveSavings(accountId: number) {

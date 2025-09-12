@@ -29,6 +29,8 @@ public interface IAccountService {
     AccountResponse updateAccountStatus(Long accountId, AccountStatus status);
     AccountResponse updateInterestRate(Long accountId, double newInterestRate);
     AccountResponse approveTermAccount(Long accountId, AccountApprovalRequest request);
+    // TransactionResponse creditInterest(Long accountId);
+    TransactionResponse creditInterest(Long accountId);
 
     // approveTermAccount
 }

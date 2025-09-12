@@ -104,4 +104,11 @@ public class TransactionService {
                 .map(TransactionMapper::toDTO)
                 .collect(Collectors.toSet());
     }
+
+     public Set<TransactionResponse> findAllByTransactionType(TransactionType type) {
+        return transactionRepository.findAllByTransactionType(type)
+                .stream()
+                .map(TransactionMapper::toDTO)
+                .collect(Collectors.toSet());
+    }
 }

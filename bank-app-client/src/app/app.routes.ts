@@ -14,6 +14,7 @@ import { AdminDashboardComponent } from './components/admin-dashboard/admin-dash
 
 import { AccountListComponent } from './components/account-list/account-list'; // New
 import { TransactionListComponent } from './components/transaction-list/transaction-list'; // New
+import { InterestLogComponent } from './components/interest-log/interest-log';
 
 
 export const routes: Routes = [
@@ -31,11 +32,9 @@ export const routes: Routes = [
   { path: 'beneficiaries', component: BeneficiaryComponent, canActivate: [authGuard] },
   { path: 'transactions/account/:accountId', component: Transactions, canActivate: [authGuard] },
   
-  { 
-    path: 'admin/dashboard', 
-    component: AdminDashboardComponent, 
-    canActivate: [authGuard, adminGuard] // Protect with both guards
-  },
+   { path: 'admin/dashboard', component: AdminDashboardComponent, canActivate: [authGuard, adminGuard] },
+  { path: 'admin/interest-log', component: InterestLogComponent, canActivate: [authGuard, adminGuard] },
+
   
   // Redirect any other path to home
   { path: '**', redirectTo: '' }

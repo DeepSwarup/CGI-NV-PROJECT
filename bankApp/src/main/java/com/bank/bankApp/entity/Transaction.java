@@ -2,7 +2,6 @@ package com.bank.bankApp.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-
 import com.bank.bankApp.enums.TransactionStatus;
 import com.bank.bankApp.enums.TransactionType;
 
@@ -18,7 +17,7 @@ public class Transaction {
     private double amount;
     
     @Enumerated(EnumType.STRING)
-    private TransactionType transactiontype;
+    private TransactionType transactionType; // CORRECTED: from 'transactiontype' to 'transactionType'
     
     @Column(name = "transaction_date_and_time", nullable = false)
     private LocalDateTime transactionDateandTime;
@@ -32,15 +31,16 @@ public class Transaction {
     
     private String transactionRemarks;
 
-    // Getters and Setters
+    // --- Getters and Setters ---
     public long getTransactionId() { return transactionId; }
     public void setTransactionId(long transactionId) { this.transactionId = transactionId; }
 
     public double getAmount() { return amount; }
     public void setAmount(double amount) { this.amount = amount; }
 
-    public TransactionType getTransactiontype() { return transactiontype; }
-    public void setTransactiontype(TransactionType transactiontype) { this.transactiontype = transactiontype; }
+    // CORRECTED: Getter and Setter for the renamed field
+    public TransactionType getTransactionType() { return transactionType; }
+    public void setTransactionType(TransactionType transactionType) { this.transactionType = transactionType; }
 
     public LocalDateTime getTransactionDateandTime() { return transactionDateandTime; }
     public void setTransactionDateandTime(LocalDateTime transactionDateandTime) { this.transactionDateandTime = transactionDateandTime; }

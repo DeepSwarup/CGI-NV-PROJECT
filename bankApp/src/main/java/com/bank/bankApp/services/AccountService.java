@@ -37,6 +37,48 @@ public class AccountService implements IAccountService {
     @Autowired
     private AccountNumberGenerator accountNumberGenerator;
 
+     @Override
+    @Transactional
+    public TransactionResponse creditInterest(Long accountId) {
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new RuntimeException("Account not found with ID: " + accountId));
+
+        if (account.getStatus() != AccountStatus.ACTIVE) {
+            throw new RuntimeException("Interest can only be credited to ACTIVE accounts.");
+        }
+
+        double interestAmount = calculateInterest(account);
+        
+        // Ensure interest is a positive value to avoid issues
+        if (interestAmount <= 0) {
+            throw new RuntimeException("No interest to credit for this period.");
+        }
+
+        // Add the interest to the account balance
+        account.setBalance(account.getBalance() + interestAmount);
+        accountRepository.save(account);
+
+        // Create a transaction record for this event
+        Transaction interestTransaction = createTransaction(account, interestAmount, 
+                                                            TransactionType.DEPOSIT, "Monthly Interest Credit");
+        
+        return TransactionMapper.toDTO(interestTransaction);
+    }
+    
+    // This private helper method is already in your service, we are just reusing it.
+    private double calculateInterest(Account account) {
+        if (account instanceof SavingsAccount) {
+            // Monthly interest calculation
+            return account.getBalance() * (account.getInterestRate() / 100) / 12; 
+        } else if (account instanceof TermAccount) {
+            TermAccount termAccount = (TermAccount) account;
+            // Full term interest calculation (for simplicity)
+            // A real-world scenario might be more complex (e.g., pro-rated)
+            return termAccount.getBalance() * (termAccount.getInterestRate() / 100) * termAccount.getMonths() / 12;
+        }
+        return 0;
+    }
+
     private Long generateUniqueAccountNumber() {
         long newAccountId;
         do {
@@ -287,15 +329,15 @@ public class AccountService implements IAccountService {
         }
     }
 
-    private double calculateInterest(Account account) {
-        if (account instanceof SavingsAccount) {
-            return account.getBalance() * (account.getInterestRate() / 100) / 12; // Monthly interest
-        } else if (account instanceof TermAccount) {
-            TermAccount termAccount = (TermAccount) account;
-            return termAccount.getBalance() * (termAccount.getInterestRate() / 100) * termAccount.getMonths() / 12;
-        }
-        return 0;
-    }
+    // private double calculateInterest(Account account) {
+    //     if (account instanceof SavingsAccount) {
+    //         return account.getBalance() * (account.getInterestRate() / 100) / 12; // Monthly interest
+    //     } else if (account instanceof TermAccount) {
+    //         TermAccount termAccount = (TermAccount) account;
+    //         return termAccount.getBalance() * (termAccount.getInterestRate() / 100) * termAccount.getMonths() / 12;
+    //     }
+    //     return 0;
+    // }
 
     private Transaction createTransaction(Account account, double amount, 
                                     TransactionType type, String remarks) {
@@ -305,7 +347,7 @@ public class AccountService implements IAccountService {
     
     Transaction transaction = new Transaction();
     transaction.setAmount(amount);
-    transaction.setTransactiontype(type);
+    transaction.setTransactionType(type);
     transaction.setTransactionDateandTime(LocalDateTime.now());
     transaction.setBankAccount(managedAccount); // Use the managed entity
     transaction.setTransactionStatus(TransactionStatus.SUCCESS);
