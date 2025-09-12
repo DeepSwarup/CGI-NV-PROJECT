@@ -11,16 +11,16 @@ import lombok.*;
 @PrimaryKeyJoinColumn(name = "account_id")
 public class TermAccount extends Account {
 
-    private double amount;
+    // private double amount;
 
     private int months;
 
     private double penaltyAmount;
 
     // Manual getter methods
-    public double getAmount() {
-        return amount;
-    }
+    // public double getAmount() {
+    //     return amount;
+    // }
 
     public int getMonths() {
         return months;
@@ -31,9 +31,9 @@ public class TermAccount extends Account {
     }
 
     // Manual setter methods
-    public void setAmount(double amount) {
-        this.amount = amount;
-    }
+    // public void setAmount(double amount) {
+    //     this.amount = amount;
+    // }
 
     public void setMonths(int months) {
         this.months = months;
@@ -49,7 +49,7 @@ public class TermAccount extends Account {
     }
 
     public static class TermAccountBuilder {
-        private double amount;
+        // private double amount;
         private int months;
         private double penaltyAmount;
         private double interestRate;
@@ -57,10 +57,10 @@ public class TermAccount extends Account {
         private LocalDate dateOfOpening;
         private Customer customer;
 
-        public TermAccountBuilder amount(double amount) {
-            this.amount = amount;
-            return this;
-        }
+        // public TermAccountBuilder amount(double amount) {
+        //     this.amount = amount;
+        //     return this;
+        // }
 
         public TermAccountBuilder months(int months) {
             this.months = months;
@@ -94,7 +94,7 @@ public class TermAccount extends Account {
 
         public TermAccount build() {
             TermAccount account = new TermAccount();
-            account.setAmount(amount);
+            // account.setAmount(amount);
             account.setMonths(months);
             account.setPenaltyAmount(penaltyAmount);
             

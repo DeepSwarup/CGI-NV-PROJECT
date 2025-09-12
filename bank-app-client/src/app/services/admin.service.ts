@@ -21,8 +21,12 @@ export class AdminService {
   /**
    * Sends a request to approve a pending account.
    */
-  approveAccount(accountId: number): Observable<Account> {
+   approveSavingsAccount(accountId: number): Observable<Account> {
     return this.http.post<Account>(`${this.baseUrl}/accounts/${accountId}/approve`, {});
+  }
+
+  approveTermAccount(accountId: number, data: { interestRate: number; penaltyAmount: number }): Observable<Account> {
+    return this.http.post<Account>(`${this.baseUrl}/accounts/term/${accountId}/approve`, data);
   }
 
   /**

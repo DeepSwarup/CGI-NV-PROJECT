@@ -10,4 +10,5 @@ export interface Account {
   nominees: Nominee[];
   beneficiaries: Beneficiary[];
   status?: 'PENDING' | 'ACTIVE' | 'CLOSED' | 'DECLINED';
+  penaltyAmount?: number;
 }

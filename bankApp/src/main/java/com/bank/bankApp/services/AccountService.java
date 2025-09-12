@@ -101,26 +101,26 @@ public class AccountService implements IAccountService {
         Customer customer = customerRepository.findById(request.getCustomerId())
                 .orElseThrow(() -> new RuntimeException("Customer not found"));
 
+        // SIMPLIFIED: The builder now uses .balance() for the principal
         TermAccount account = TermAccount.builder()
-                .amount(request.getAmount())
                 .months(request.getMonths())
-                .balance(request.getInitialDeposit())
-                .interestRate(6.0)
+                .balance(request.getInitialDeposit()) // Use initialDeposit for the balance
+                .interestRate(6.0) // Default rate
                 .dateOfOpening(LocalDate.now())
                 .customer(customer)
-                .penaltyAmount(0.0)
+                .penaltyAmount(0.0) // Default penalty
                 .build();
- account.setAccountId(generateUniqueAccountNumber());
-        account.setStatus(AccountStatus.PENDING); // Set initial status to PENDING
+                
+        account.setAccountId(generateUniqueAccountNumber());
+        account.setStatus(AccountStatus.PENDING);
 
         TermAccount savedAccount = accountRepository.save(account);
         
         createTransaction(savedAccount, request.getInitialDeposit(), 
-                          TransactionType.DEPOSIT, "Initial deposit");
+                          TransactionType.DEPOSIT, "Initial Term Deposit");
         
         return AccountMapper.toDTO(savedAccount);
     }
-
 
     @Override
     @Transactional
@@ -240,6 +240,29 @@ public class AccountService implements IAccountService {
 
     @Override
     @Transactional
+    public AccountResponse approveTermAccount(Long accountId, AccountApprovalRequest request) {
+        // Find the account and ensure it is a TermAccount
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new RuntimeException("Account not found with ID: " + accountId));
+
+        if (!(account instanceof TermAccount)) {
+            throw new IllegalArgumentException("This action is only applicable to Term Accounts.");
+        }
+
+        TermAccount termAccount = (TermAccount) account;
+
+        // Set the properties from the admin's request
+        termAccount.setStatus(AccountStatus.ACTIVE);
+        termAccount.setInterestRate(request.getInterestRate());
+        termAccount.setPenaltyAmount(request.getPenaltyAmount());
+        
+        Account updatedAccount = accountRepository.save(termAccount);
+        
+        return AccountMapper.toDTO(updatedAccount);
+    }
+
+    @Override
+    @Transactional
     public boolean closeTermAccount(Long accountId) {
         Optional<Account> account = accountRepository.findById(accountId);
         if (account.isPresent() && account.get() instanceof TermAccount) {
@@ -269,7 +292,7 @@ public class AccountService implements IAccountService {
             return account.getBalance() * (account.getInterestRate() / 100) / 12; // Monthly interest
         } else if (account instanceof TermAccount) {
             TermAccount termAccount = (TermAccount) account;
-            return termAccount.getAmount() * (termAccount.getInterestRate() / 100) * termAccount.getMonths() / 12;
+            return termAccount.getBalance() * (termAccount.getInterestRate() / 100) * termAccount.getMonths() / 12;
         }
         return 0;
     }

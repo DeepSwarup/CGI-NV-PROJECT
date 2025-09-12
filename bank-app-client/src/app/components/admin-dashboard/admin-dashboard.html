@@ -18,6 +18,7 @@
                             <th>Type</th>
                             <th>Balance</th>
                             <th>Interest Rate</th>
+                            <th>Penalty Amount</th>
                             <th>Status</th>
                             <th class="text-center">Actions</th>
                         </tr>
@@ -28,17 +29,20 @@
                             <td>{{ account.accountType }}</td>
                             <td>{{ account.balance | currency:'INR' }}</td>
                             <td>{{ account.interestRate }}%</td>
+                            <td>{{ (account.accountType === 'TERM' ? (account.penaltyAmount | currency:'INR') : 'N/A') }}</td>
                             <td>
                                 <span class="badge" [ngClass]="getAccountStatusClass(account.status)">{{ account.status }}</span>
                             </td>
                             <td class="text-center">
                                 <!-- Actions for PENDING accounts -->
                                 <div *ngIf="account.status === 'PENDING'" class="d-flex justify-content-center gap-2">
-                                    <button class="btn btn-sm btn-success" (click)="approve(account.accountId)">Approve</button>
+                                    <button *ngIf="account.accountType === 'SAVINGS'" class="btn btn-sm btn-success" (click)="approveSavings(account.accountId)">Approve</button>
+                                    <button *ngIf="account.accountType === 'TERM'" class="btn btn-sm btn-success" (click)="openApprovalModal(account)">Review & Approve</button>
                                     <button class="btn btn-sm btn-danger" (click)="decline(account.accountId)">Decline</button>
                                 </div>
                                 <!-- Actions for ACTIVE accounts -->
                                 <div *ngIf="account.status === 'ACTIVE'">
+                                    <!-- THIS IS THE CORRECTED LINE -->
                                     <button class="btn btn-sm btn-outline-primary" (click)="openInterestModal(account)">Set Rate</button>
                                 </div>
                                 <!-- No actions for other statuses -->
@@ -55,6 +59,35 @@
             </ng-template>
         </div>
     </div>
+</div>
+
+<!-- Term Account Approval Modal -->
+<div *ngIf="showApprovalModal()" class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form [formGroup]="approvalForm" (ngSubmit)="submitApproval()">
+        <div class="modal-header">
+          <h5 class="modal-title">Approve Term Account</h5>
+          <button type="button" class="btn-close" (click)="closeApprovalModal()"></button>
+        </div>
+        <div class="modal-body">
+          <p>Set parameters for Account ID: <strong>#{{ accountToApprove()?.accountId }}</strong></p>
+          <div class="mb-3">
+            <label class="form-label">Interest Rate (%)</label>
+            <input type="number" class="form-control" formControlName="interestRate">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Penalty Amount (on early withdrawal)</label>
+            <input type="number" class="form-control" formControlName="penaltyAmount">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeApprovalModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="approvalForm.invalid">Confirm & Approve</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
 
 <!-- Set Interest Rate Modal -->
@@ -84,4 +117,3 @@
         </div>
     </div>
 </div>
-

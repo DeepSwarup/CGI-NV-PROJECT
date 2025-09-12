@@ -1,5 +1,6 @@
 package com.bank.bankApp.services;
 
+import com.bank.bankApp.dtos.AccountApprovalRequest;
 import com.bank.bankApp.dtos.AccountResponse;
 import com.bank.bankApp.dtos.SavingsAccountRequest;
 import com.bank.bankApp.dtos.TermAccountRequest;
@@ -27,4 +28,7 @@ public interface IAccountService {
     void computeInterestForAllAccounts();
     AccountResponse updateAccountStatus(Long accountId, AccountStatus status);
     AccountResponse updateInterestRate(Long accountId, double newInterestRate);
+    AccountResponse approveTermAccount(Long accountId, AccountApprovalRequest request);
+
+    // approveTermAccount
 }

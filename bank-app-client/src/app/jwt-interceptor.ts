@@ -1,25 +1,22 @@
-import { HttpInterceptorFn } from '@angular/common/http';
+import { HttpEvent, HttpHandlerFn, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
-export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
+export const jwtInterceptor: HttpInterceptorFn = (
+  req: HttpRequest<unknown>,
+  next: HttpHandlerFn
+): Observable<HttpEvent<unknown>> => {
 
+  // Get the token from local storage
+  const token = localStorage.getItem('token');
 
-
-  const token = localStorage.getItem('token')
-
-
-  if (req.url.includes('/login') || req.url.includes('/signup')) {
-    return next(req);
-  }
-
+  // If a token exists, clone the request to add the new header.
   if (token) {
-    const cloned = req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-    return next(cloned)
+    const clonedReq = req.clone({
+      headers: req.headers.set('Authorization', `Bearer ${token}`),
+    });
+    return next(clonedReq);
   }
 
-  return next(req)
-
+  // If there is no token, pass the original request along.
+  return next(req);
 };

@@ -95,9 +95,15 @@ public class AdminController {
     }
 
     @PostMapping("/accounts/{accountId}/approve")
-    public ResponseEntity<AccountResponse> approveAccount(@PathVariable Long accountId) {
+    public ResponseEntity<AccountResponse> approveSavingsAccount(@PathVariable Long accountId) {
         return ResponseEntity.ok(accountService.updateAccountStatus(accountId, AccountStatus.ACTIVE));
     }
+
+     @PostMapping("/accounts/term/{accountId}/approve")
+    public ResponseEntity<AccountResponse> approveTermAccount(@PathVariable Long accountId, @RequestBody AccountApprovalRequest request) {
+        return ResponseEntity.ok(accountService.approveTermAccount(accountId, request));
+    }
+
 
       @PostMapping("/accounts/{accountId}/decline")
     public ResponseEntity<AccountResponse> declineAccount(@PathVariable Long accountId) {
