@@ -3,6 +3,9 @@ package com.bank.bankApp.services;
 import com.bank.bankApp.dtos.*;
 import com.bank.bankApp.entity.Admin;
 import com.bank.bankApp.entity.Customer;
+import com.bank.bankApp.entity.Account;
+import com.bank.bankApp.mapper.AccountMapper;
+import com.bank.bankApp.repository.AccountRepository;
 import com.bank.bankApp.entity.User;
 import com.bank.bankApp.mapper.AdminMapper;
 import com.bank.bankApp.mapper.CustomerMapper;
@@ -12,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AdminService {
@@ -22,7 +26,18 @@ public class AdminService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private AccountRepository accountRepository;
 
+
+
+    public List<AccountResponse> listAllAccounts() {
+        return accountRepository.findAll()
+                .stream()
+                .map(AccountMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+    
     public AdminResponse addAdmin(Long userId, AdminRequest request){
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("user not found"));
 

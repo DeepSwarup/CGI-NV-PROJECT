@@ -1,0 +1,22 @@
+<h1 class="mb-3">View Transactions</h1>
+<p class="text-muted mb-4">Please select an active account to view its transaction history.</p>
+
+<div *ngIf="isLoading()" class="text-center py-5">
+  <div class="spinner-border text-primary" role="status"></div>
+</div>
+
+<div *ngIf="!isLoading()" class="list-group">
+  <a *ngFor="let account of accounts()" 
+     [routerLink]="['/transactions/account', account.accountId]" 
+     class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+    <div>
+      <h6 class="mb-1">{{ account.accountType }} Account (#{{ account.accountId }})</h6>
+      <small>Balance: {{ account.balance | currency:'INR' }}</small>
+    </div>
+    <i class="bi bi-chevron-right"></i>
+  </a>
+  <div *ngIf="accounts().length === 0" class="list-group-item">
+    You have no active accounts to view transactions for.
+  </div>
+</div>
+

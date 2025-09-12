@@ -1,8 +1,11 @@
 package com.bank.bankApp.entity;
 
+import com.bank.bankApp.enums.AccountStatus; // Import the new enum
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.Set;
+
+
 
 @Entity
 @Table(name = "accounts")
@@ -10,7 +13,7 @@ import java.util.Set;
 public class Account {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    // @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "account_id")
     private Long accountId;
 
@@ -19,6 +22,9 @@ public class Account {
     private double balance;
 
     private LocalDate dateOfOpening;
+
+    @Enumerated(EnumType.STRING) // Add this annotation
+    private AccountStatus status; // Add the status field
 
     @ManyToOne
     @JoinColumn(name = "customer_id", nullable = false)
@@ -49,6 +55,9 @@ public class Account {
     public LocalDate getDateOfOpening() { return dateOfOpening; }
     public void setDateOfOpening(LocalDate dateOfOpening) { this.dateOfOpening = dateOfOpening; }
 
+    public AccountStatus getStatus() { return status; } // Getter for status
+    public void setStatus(AccountStatus status) { this.status = status; } // Setter for status
+
     public Customer getCustomer() { return customer; }
     public void setCustomer(Customer customer) { this.customer = customer; }
 
@@ -60,8 +69,7 @@ public class Account {
 
     public Set<Beneficiary> getBeneficiaries() { return beneficiaries; }
     public void setBeneficiaries(Set<Beneficiary> beneficiaries) { this.beneficiaries = beneficiaries; }
-
-    // Method to get user from customer
+    
     public User getUser() {
         return this.customer != null ? this.customer.getUser() : null;
     }

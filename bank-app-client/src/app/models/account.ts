@@ -6,7 +6,8 @@ export interface Account {
   interestRate: number;
   balance: number;
   dateOfOpening: string;
-  accountType?: string | null;
+  accountType?: 'SAVINGS' | 'TERM' | null;
   nominees: Nominee[];
   beneficiaries: Beneficiary[];
+  status?: 'PENDING' | 'ACTIVE' | 'CLOSED' | 'DECLINED';
 }

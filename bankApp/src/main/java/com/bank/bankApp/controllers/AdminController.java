@@ -2,8 +2,10 @@ package com.bank.bankApp.controllers;
 
 import com.bank.bankApp.dtos.*;
 import com.bank.bankApp.entity.User;
+import com.bank.bankApp.enums.AccountStatus;
 import com.bank.bankApp.services.AdminService;
 import com.bank.bankApp.services.CustomerService;
+import com.bank.bankApp.services.IAccountService;
 import com.bank.bankApp.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/admin")
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
 
     @Autowired
@@ -25,6 +28,9 @@ public class AdminController {
 
     @Autowired
     private AdminService adminService;
+
+    @Autowired
+    private IAccountService accountService;
 
     @GetMapping("/admin-check")
     @PreAuthorize("hasRole('ADMIN')")
@@ -67,6 +73,12 @@ public class AdminController {
         return ResponseEntity.ok(adminService.updateAdmin(userId, adminRequest));
     }
 
+    
+    @GetMapping("/accounts")
+    public ResponseEntity<List<AccountResponse>> getAllAccounts() {
+        return ResponseEntity.ok(adminService.listAllAccounts());
+    }
+
     @GetMapping("/all")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<AdminResponse>> getAllAdmins(HttpServletRequest request) {
@@ -80,6 +92,27 @@ public class AdminController {
 
         AdminDetailResponse response = adminService.getAdminById(id);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/accounts/{accountId}/approve")
+    public ResponseEntity<AccountResponse> approveAccount(@PathVariable Long accountId) {
+        return ResponseEntity.ok(accountService.updateAccountStatus(accountId, AccountStatus.ACTIVE));
+    }
+
+      @PostMapping("/accounts/{accountId}/decline")
+    public ResponseEntity<AccountResponse> declineAccount(@PathVariable Long accountId) {
+        return ResponseEntity.ok(accountService.updateAccountStatus(accountId, AccountStatus.DECLINED));
+    }
+
+    @PostMapping("/accounts/{accountId}/interest-rate")
+    public ResponseEntity<AccountResponse> updateInterestRate(
+            @PathVariable Long accountId, 
+            @RequestBody Map<String, Double> payload) {
+        Double newInterestRate = payload.get("interestRate");
+        if (newInterestRate == null || newInterestRate < 0) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok(accountService.updateInterestRate(accountId, newInterestRate));
     }
 
 }

@@ -1,0 +1,45 @@
+<h1 class="mb-3">Your Accounts</h1>
+<p class="text-muted mb-4">A detailed list of all your savings and term accounts.</p>
+
+<div *ngIf="isLoading()" class="text-center py-5">
+  <div class="spinner-border text-primary" role="status"></div>
+</div>
+
+<div *ngIf="!isLoading()" class="card">
+  <div class="card-body p-0">
+    <div *ngIf="accounts().length > 0; else noAccounts" class="table-responsive">
+      <table class="table table-hover mb-0 align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Account ID</th>
+            <th>Type</th>
+            <th>Balance</th>
+            <th>Interest Rate</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let account of accounts()">
+            <td>#{{ account.accountId }}</td>
+            <td>{{ account.accountType }}</td>
+            <td>{{ account.balance | currency:'INR' }}</td>
+            <td>{{ account.interestRate }}%</td>
+            <td>
+              <span class="badge" [ngClass]="getAccountStatusClass(account.status)">{{ account.status }}</span>
+            </td>
+            <td>
+              <a [routerLink]="['/transactions/account', account.accountId]" class="btn btn-sm btn-outline-primary">
+                View Transactions
+              </a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <ng-template #noAccounts>
+      <p class="text-center text-muted p-4">No accounts have been created yet.</p>
+    </ng-template>
+  </div>
+</div>
+

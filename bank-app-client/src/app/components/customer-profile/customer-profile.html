@@ -1,77 +1,78 @@
-<div class="container mt-5" *ngIf="role === 'CUSTOMER' || role === 'ADMIN'">
-  <h2>Customer Profile</h2>
-  <div *ngIf="isLoading">Loading...</div>
-  <ng-container *ngIf="!isLoading">
-    <ng-container *ngIf="profile; else noProfile">
-      <div *ngIf="!isEditMode">
-        <p><strong>Phone No:</strong> {{ profile.phoneNo }}</p>
-        <p><strong>Age:</strong> {{ profile.age }}</p>
-        <p><strong>Gender:</strong> {{ profile.gender }}</p>
-        <button class="btn btn-primary me-2" (click)="startEdit()">Edit</button>
-        <button class="btn btn-danger" (click)="onDelete()">Delete</button>
+<div *ngIf="isLoading()" class="text-center py-4">
+  <div class="spinner-border text-primary" role="status"></div>
+</div>
+
+<div *ngIf="!isLoading()">
+  <!-- VIEW MODE -->
+  <div *ngIf="profile() && !isEditMode()">
+    <div class="profile-details">
+      <div class="detail-item">
+        <span class="detail-label">Phone Number</span>
+        <span class="detail-value">{{ profile()?.phoneNo }}</span>
       </div>
-      <form *ngIf="isEditMode" [formGroup]="profileForm" (ngSubmit)="onSubmit()">
-        <div class="mb-3">
-          <label for="phoneNo" class="form-label">Phone No</label>
-          <input type="text" class="form-control" id="phoneNo" formControlName="phoneNo">
-          <div *ngIf="profileForm.get('phoneNo')?.invalid && profileForm.get('phoneNo')?.touched" class="text-danger">
-            Invalid phone number (e.g., +1234567890)
-          </div>
+      <div class="detail-item">
+        <span class="detail-label">Age</span>
+        <span class="detail-value">{{ profile()?.age }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Gender</span>
+        <span class="detail-value">{{ profile()?.gender }}</span>
+      </div>
+    </div>
+    <div class="mt-4 pt-3 border-top">
+      <button class="btn btn-primary" (click)="startEdit()">Edit Profile</button>
+      <button class="btn btn-outline-danger ms-2" (click)="showDeleteModal.set(true)">Delete Profile</button>
+    </div>
+  </div>
+
+  <!-- EDIT / CREATE MODE -->
+  <div *ngIf="isEditMode()">
+    <h6 *ngIf="!profile()" class="text-muted mb-3">Please complete your profile to continue.</h6>
+    <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label for="phoneNo" class="form-label">Phone Number</label>
+          <input type="text" id="phoneNo" class="form-control" formControlName="phoneNo">
         </div>
-        <div class="mb-3">
+        <div class="col-md-3">
           <label for="age" class="form-label">Age</label>
-          <input type="number" class="form-control" id="age" formControlName="age">
-          <div *ngIf="profileForm.get('age')?.invalid && profileForm.get('age')?.touched" class="text-danger">
-            Age must be between 18 and 120
-          </div>
+          <input type="number" id="age" class="form-control" formControlName="age">
         </div>
-        <div class="mb-3">
+        <div class="col-md-3">
           <label for="gender" class="form-label">Gender</label>
-          <select class="form-select" id="gender" formControlName="gender">
-            <option value="">Select Gender</option>
+          <select id="gender" class="form-select" formControlName="gender">
+            <option value="" disabled>Select...</option>
             <option value="MALE">Male</option>
             <option value="FEMALE">Female</option>
             <option value="OTHER">Other</option>
           </select>
-          <div *ngIf="profileForm.get('gender')?.invalid && profileForm.get('gender')?.touched" class="text-danger">
-            Gender is required
-          </div>
         </div>
-        <button type="submit" class="btn btn-primary me-2" [disabled]="profileForm.invalid">Update</button>
-        <button type="submit" class="btn btn-danger" [disabled]="profileForm.invalid" (click)="cancleEdit()">Cancle</button>
-      </form>
-    </ng-container>
-    <ng-template #noProfile>
-      <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
-        <!-- Same form fields as above -->
-        <div class="mb-3">
-          <label for="phoneNo" class="form-label">Phone No</label>
-          <input type="text" class="form-control" id="phoneNo" formControlName="phoneNo">
-          <div *ngIf="profileForm.get('phoneNo')?.invalid && profileForm.get('phoneNo')?.touched" class="text-danger">
-            Invalid phone number (e.g., +1234567890)
-          </div>
-        </div>
-        <div class="mb-3">
-          <label for="age" class="form-label">Age</label>
-          <input type="number" class="form-control" id="age" formControlName="age">
-          <div *ngIf="profileForm.get('age')?.invalid && profileForm.get('age')?.touched" class="text-danger">
-            Age must be between 18 and 120
-          </div>
-        </div>
-        <div class="mb-3">
-          <label for="gender" class="form-label">Gender</label>
-          <select class="form-select" id="gender" formControlName="gender">
-            <option value="">Select Gender</option>
-            <option value="MALE">Male</option>
-            <option value="FEMALE">Female</option>
-            <option value="OTHER">Other</option>
-          </select>
-          <div *ngIf="profileForm.get('gender')?.invalid && profileForm.get('gender')?.touched" class="text-danger">
-            Gender is required
-          </div>
-        </div>
-        <button type="submit" class="btn btn-primary" [disabled]="profileForm.invalid">Create Profile</button>
-      </form>
-    </ng-template>
-  </ng-container>
+      </div>
+      <div class="mt-4 pt-3 border-top">
+        <button type="submit" class="btn btn-success" [disabled]="profileForm.invalid">
+          {{ profile() ? 'Save Changes' : 'Create Profile' }}
+        </button>
+        <button *ngIf="profile()" type="button" class="btn btn-secondary ms-2" (click)="cancelEdit()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div *ngIf="showDeleteModal()" class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Confirm Deletion</h5>
+        <button type="button" class="btn-close" (click)="showDeleteModal.set(false)"></button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete your profile? This action cannot be undone.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="showDeleteModal.set(false)">Cancel</button>
+        <button type="button" class="btn btn-danger" (click)="onDelete()">Yes, Delete Profile</button>
+      </div>
+    </div>
+  </div>
 </div>

@@ -1,0 +1,75 @@
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Create New Account</h3>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="accountForm" (ngSubmit)="onSubmit()">
+            <!-- Account Type Selection -->
+            <div class="mb-3">
+              <label class="form-label">Account Type</label>
+              <div>
+                <div class="form-check form-check-inline" *ngFor="let type of accountTypes">
+                  <input class="form-check-input" type="radio" [id]="'type-' + type" 
+                         formControlName="accountType" [value]="type">
+                  <label class="form-check-label" [for]="'type-' + type">
+                    {{ type === 'SAVINGS' ? 'Savings Account' : 'Term Account' }}
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Initial Deposit -->
+            <div class="mb-3">
+              <label for="initialDeposit" class="form-label">Initial Deposit</label>
+              <input type="number" class="form-control" id="initialDeposit" 
+                     formControlName="initialDeposit" min="1000">
+              <div class="form-text">Minimum initial deposit is ₹1000</div>
+              <div *ngIf="accountForm.get('initialDeposit')?.invalid && 
+                          accountForm.get('initialDeposit')?.touched" class="text-danger">
+                Initial deposit must be at least ₹1000
+              </div>
+            </div>
+
+            <!-- Savings Account Specific Fields -->
+            <div *ngIf="isSavingsAccount" class="mb-3">
+              <label for="minBalance" class="form-label">Minimum Balance</label>
+              <input type="number" class="form-control" id="minBalance" 
+                     formControlName="minBalance" min="0">
+              <div class="form-text">Minimum balance to maintain in savings account</div>
+            </div>
+
+            <!-- Term Account Specific Fields -->
+            <div *ngIf="isTermAccount" class="mb-3">
+              <label for="months" class="form-label">Term Duration (Months)</label>
+              <input type="number" class="form-control" id="months" 
+                     formControlName="months" min="3" max="60">
+              <div class="form-text">Term duration between 3 to 60 months</div>
+              <div *ngIf="accountForm.get('months')?.invalid && 
+                          accountForm.get('months')?.touched" class="text-danger">
+                Term must be between 3 and 60 months
+              </div>
+            </div>
+
+            <!-- Error Message -->
+            <div *ngIf="errorMessage" class="alert alert-danger">
+              {{ errorMessage }}
+            </div>
+
+            <!-- Submit Button -->
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+                {{ isLoading ? 'Creating Account...' : 'Create Account' }}
+              </button>
+              <button type="button" class="btn btn-secondary" routerLink="/dashboard">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

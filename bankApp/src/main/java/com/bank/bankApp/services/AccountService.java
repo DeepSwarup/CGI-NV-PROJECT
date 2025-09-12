@@ -2,6 +2,7 @@ package com.bank.bankApp.services;
 
 import com.bank.bankApp.dtos.*;
 import com.bank.bankApp.entity.*;
+import com.bank.bankApp.enums.AccountStatus;
 import com.bank.bankApp.enums.TransactionStatus;
 import com.bank.bankApp.enums.TransactionType;
 import com.bank.bankApp.mapper.AccountMapper;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import com.bank.bankApp.utils.AccountNumberGenerator;
 
 @Service
 public class AccountService implements IAccountService {
@@ -32,28 +34,63 @@ public class AccountService implements IAccountService {
     @Autowired
     private TransactionRepository transactionRepository;
 
+    @Autowired
+    private AccountNumberGenerator accountNumberGenerator;
+
+    private Long generateUniqueAccountNumber() {
+        long newAccountId;
+        do {
+            newAccountId = accountNumberGenerator.generate();
+        } while (accountRepository.existsById(newAccountId)); // Keep generating until a unique one is found
+        return newAccountId;
+    }
+
+   @Override
+    @Transactional
+    public AccountResponse updateAccountStatus(Long accountId, AccountStatus status) {
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new RuntimeException("Account not found with ID: " + accountId));
+        
+        account.setStatus(status);
+        Account updatedAccount = accountRepository.save(account);
+        
+        return AccountMapper.toDTO(updatedAccount);
+    }
+
+
+    @Override
+    @Transactional
+    public AccountResponse updateInterestRate(Long accountId, double newInterestRate) {
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new RuntimeException("Account not found with ID: " + accountId));
+
+        account.setInterestRate(newInterestRate);
+        Account updatedAccount = accountRepository.save(account);
+
+        return AccountMapper.toDTO(updatedAccount);
+    }
+
     @Override
     @Transactional
     public AccountResponse addSavingsAccount(SavingsAccountRequest request) {
         Customer customer = customerRepository.findById(request.getCustomerId())
                 .orElseThrow(() -> new RuntimeException("Customer not found"));
 
-        // Create using custom builder
         SavingsAccount account = SavingsAccount.builder()
                 .minBalance(request.getMinBalance())
                 .balance(request.getInitialDeposit())
-                .interestRate(3.5) // Default interest rate for savings
+                .interestRate(3.5)
                 .dateOfOpening(LocalDate.now())
                 .customer(customer)
                 .fine(0.0)
                 .build();
-
+        account.setAccountId(generateUniqueAccountNumber());
+        account.setStatus(AccountStatus.PENDING);
 
         SavingsAccount savedAccount = accountRepository.save(account);
         
-        // Create initial deposit transaction AFTER the account is saved
         createTransaction(savedAccount, request.getInitialDeposit(), 
-                         TransactionType.DEPOSIT, "Initial deposit");
+                          TransactionType.DEPOSIT, "Initial deposit");
         
         return AccountMapper.toDTO(savedAccount);
     }
@@ -64,54 +101,59 @@ public class AccountService implements IAccountService {
         Customer customer = customerRepository.findById(request.getCustomerId())
                 .orElseThrow(() -> new RuntimeException("Customer not found"));
 
-        // Create using custom builder
         TermAccount account = TermAccount.builder()
                 .amount(request.getAmount())
                 .months(request.getMonths())
                 .balance(request.getInitialDeposit())
-                .interestRate(6.0) // Default interest rate for term account
+                .interestRate(6.0)
                 .dateOfOpening(LocalDate.now())
                 .customer(customer)
                 .penaltyAmount(0.0)
                 .build();
+ account.setAccountId(generateUniqueAccountNumber());
+        account.setStatus(AccountStatus.PENDING); // Set initial status to PENDING
 
-        // Save the account first to get the ID
         TermAccount savedAccount = accountRepository.save(account);
         
-        // Create initial deposit transaction AFTER the account is saved
         createTransaction(savedAccount, request.getInitialDeposit(), 
-                         TransactionType.DEPOSIT, "Initial deposit");
+                          TransactionType.DEPOSIT, "Initial deposit");
         
         return AccountMapper.toDTO(savedAccount);
     }
 
+
     @Override
     @Transactional
     public TransactionResponse transferMoney(Long senderAccountId, Long receiverAccountId, 
-                                           double amount, String username, String password) {
-        // Authentication would be handled by Spring Security in real implementation
+                                             double amount, String username, String password) {
         Account senderAccount = accountRepository.findById(senderAccountId)
                 .orElseThrow(() -> new RuntimeException("Sender account not found"));
         
         Account receiverAccount = accountRepository.findById(receiverAccountId)
                 .orElseThrow(() -> new RuntimeException("Receiver account not found"));
+        
+        // Add status checks
+        if (senderAccount.getStatus() != AccountStatus.ACTIVE) {
+            throw new RuntimeException("Sender account is not active.");
+        }
+        if (receiverAccount.getStatus() != AccountStatus.ACTIVE) {
+            throw new RuntimeException("Receiver account is not active.");
+        }
 
         if (senderAccount.getBalance() < amount) {
             throw new RuntimeException("Insufficient funds");
         }
 
-        // Update balances
         senderAccount.setBalance(senderAccount.getBalance() - amount);
         receiverAccount.setBalance(receiverAccount.getBalance() + amount);
 
         accountRepository.save(senderAccount);
         accountRepository.save(receiverAccount);
 
-        // Create transactions
         Transaction withdrawal = createTransaction(senderAccount, amount, 
                 TransactionType.TRANSFER, "Transfer to account: " + receiverAccountId);
         
-        Transaction deposit = createTransaction(receiverAccount, amount, 
+        createTransaction(receiverAccount, amount, 
                 TransactionType.TRANSFER, "Transfer from account: " + senderAccountId);
 
         return TransactionMapper.toDTO(withdrawal);
@@ -122,6 +164,11 @@ public class AccountService implements IAccountService {
     public TransactionResponse withdraw(Long accountId, double amount, String username, String password) {
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new RuntimeException("Account not found"));
+
+        // Add status check
+        if (account.getStatus() != AccountStatus.ACTIVE) {
+            throw new RuntimeException("Account is not active.");
+        }
 
         if (account.getBalance() < amount) {
             throw new RuntimeException("Insufficient funds");

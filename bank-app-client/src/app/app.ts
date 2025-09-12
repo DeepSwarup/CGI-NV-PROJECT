@@ -1,13 +1,38 @@
-import { Component, signal } from '@angular/core';
-import { Router, RouterOutlet } from '@angular/router';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { Auth } from './services/auth/auth';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  standalone: true,
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
   templateUrl: './app.html',
-  styleUrl: './app.css'
+  styleUrls: ['./app.css']
 })
-export class App {
-  title = 'Bank App Client'
+export class App implements OnInit {
+  private authService = inject(Auth);
 
+  isAuthenticated = false;
+  userNameInitial = '';
+  isSidebarVisible = signal(false); // Signal to manage sidebar visibility on mobile
+
+  ngOnInit() {
+    this.authService.currentUser$.subscribe(user => {
+      this.isAuthenticated = !!user;
+      if (user) {
+        this.userNameInitial = user.name.charAt(0).toUpperCase();
+      }
+    });
+  }
+
+  logout() {
+    this.authService.logout();
+  }
+
+  // Method to toggle the sidebar on and off
+  toggleSidebar() {
+    this.isSidebarVisible.set(!this.isSidebarVisible());
+  }
 }
+

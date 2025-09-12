@@ -1,0 +1,87 @@
+<div class="container my-4">
+    <div class="p-3 mb-4 bg-light rounded shadow-sm">
+        <h2 class="mb-0">Admin Panel: Account Management</h2>
+    </div>
+
+    <div *ngIf="isLoading()" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status"></div>
+    </div>
+    <div *ngIf="error()" class="alert alert-danger">{{ error() }}</div>
+
+    <div *ngIf="!isLoading() && !error()" class="card">
+        <div class="card-body p-0">
+            <div *ngIf="accounts().length > 0; else noAccounts" class="table-responsive">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Acc ID</th>
+                            <th>Type</th>
+                            <th>Balance</th>
+                            <th>Interest Rate</th>
+                            <th>Status</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let account of accounts()">
+                            <td>#{{ account.accountId }}</td>
+                            <td>{{ account.accountType }}</td>
+                            <td>{{ account.balance | currency:'INR' }}</td>
+                            <td>{{ account.interestRate }}%</td>
+                            <td>
+                                <span class="badge" [ngClass]="getAccountStatusClass(account.status)">{{ account.status }}</span>
+                            </td>
+                            <td class="text-center">
+                                <!-- Actions for PENDING accounts -->
+                                <div *ngIf="account.status === 'PENDING'" class="d-flex justify-content-center gap-2">
+                                    <button class="btn btn-sm btn-success" (click)="approve(account.accountId)">Approve</button>
+                                    <button class="btn btn-sm btn-danger" (click)="decline(account.accountId)">Decline</button>
+                                </div>
+                                <!-- Actions for ACTIVE accounts -->
+                                <div *ngIf="account.status === 'ACTIVE'">
+                                    <button class="btn btn-sm btn-outline-primary" (click)="openInterestModal(account)">Set Rate</button>
+                                </div>
+                                <!-- No actions for other statuses -->
+                                <div *ngIf="account.status !== 'PENDING' && account.status !== 'ACTIVE'">
+                                    <span class="text-muted small">No actions</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <ng-template #noAccounts>
+                <p class="text-center text-muted p-4">No accounts found.</p>
+            </ng-template>
+        </div>
+    </div>
+</div>
+
+<!-- Set Interest Rate Modal -->
+<div *ngIf="showInterestModal()" class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form [formGroup]="interestRateForm" (ngSubmit)="saveInterestRate()">
+                <div class="modal-header">
+                    <h5 class="modal-title">Set Interest Rate</h5>
+                    <button type="button" class="btn-close" (click)="closeInterestModal()"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Editing interest rate for Account ID: <strong>#{{ currentAccountForEdit()?.accountId }}</strong></p>
+                    <div class="mb-3">
+                        <label for="interestRate" class="form-label">New Interest Rate (%)</label>
+                        <input type="number" id="interestRate" class="form-control" formControlName="interestRate" step="0.01">
+                        <div *ngIf="interestRateForm.get('interestRate')?.invalid && interestRateForm.get('interestRate')?.touched" class="text-danger small mt-1">
+                            Please enter a valid rate (e.g., between 0 and 20).
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" (click)="closeInterestModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary" [disabled]="interestRateForm.invalid">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
