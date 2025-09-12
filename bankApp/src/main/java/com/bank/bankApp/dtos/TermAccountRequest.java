@@ -11,20 +11,20 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class TermAccountRequest {
-    private double amount;
+    // private double amount;
     private int months;
     private double initialDeposit;
     private Long customerId;
 
     // --- Manual Getters and Setters ---
 
-    public double getAmount() {
-        return amount;
-    }
+    // public double getAmount() {
+    //     return amount;
+    // }
 
-    public void setAmount(double amount) {
-        this.amount = amount;
-    }
+    // public void setAmount(double amount) {
+    //     this.amount = amount;
+    // }
 
     public int getMonths() {
         return months;

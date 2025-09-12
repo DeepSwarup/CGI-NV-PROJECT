@@ -17,7 +17,7 @@ public class TransactionMapper {
                 .transactionId(transaction.getTransactionId())
                 .accountId(transaction.getBankAccount() != null ? transaction.getBankAccount().getAccountId() : null)
                 .amount(transaction.getAmount())
-                .transactiontype(transaction.getTransactiontype())
+                .transactiontype(transaction.getTransactionType())
                 .transactionstatus(transaction.getTransactionStatus())
                 .transactionDateandTime(transaction.getTransactionDateandTime())
                 .transactionRemarks(transaction.getTransactionRemarks())
@@ -29,7 +29,7 @@ public class TransactionMapper {
         Transaction transaction = new Transaction();
         transaction.setBankAccount(account);
         transaction.setAmount(dto.getAmount());
-        transaction.setTransactiontype(dto.getTransactiontype());
+        transaction.setTransactionType(dto.getTransactiontype());
         transaction.setTransactionRemarks(dto.getTransactionRemarks());
         // status & date set in service
         return transaction;

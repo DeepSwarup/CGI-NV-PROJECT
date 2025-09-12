@@ -3,9 +3,11 @@ package com.bank.bankApp.controllers;
 import com.bank.bankApp.dtos.*;
 import com.bank.bankApp.entity.User;
 import com.bank.bankApp.enums.AccountStatus;
+import com.bank.bankApp.enums.TransactionType;
 import com.bank.bankApp.services.AdminService;
 import com.bank.bankApp.services.CustomerService;
 import com.bank.bankApp.services.IAccountService;
+import com.bank.bankApp.services.TransactionService;
 import com.bank.bankApp.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/admin")
@@ -31,6 +34,9 @@ public class AdminController {
 
     @Autowired
     private IAccountService accountService;
+
+    @Autowired
+    private TransactionService transactionService;
 
     @GetMapping("/admin-check")
     @PreAuthorize("hasRole('ADMIN')")
@@ -95,9 +101,25 @@ public class AdminController {
     }
 
     @PostMapping("/accounts/{accountId}/approve")
-    public ResponseEntity<AccountResponse> approveAccount(@PathVariable Long accountId) {
+    public ResponseEntity<AccountResponse> approveSavingsAccount(@PathVariable Long accountId) {
         return ResponseEntity.ok(accountService.updateAccountStatus(accountId, AccountStatus.ACTIVE));
     }
+
+     @PostMapping("/accounts/term/{accountId}/approve")
+    public ResponseEntity<AccountResponse> approveTermAccount(@PathVariable Long accountId, @RequestBody AccountApprovalRequest request) {
+        return ResponseEntity.ok(accountService.approveTermAccount(accountId, request));
+    }
+
+    @PostMapping("/accounts/{accountId}/credit-interest")
+    public ResponseEntity<TransactionResponse> creditInterest(@PathVariable Long accountId) {
+        return ResponseEntity.ok(accountService.creditInterest(accountId));
+    }
+
+    @GetMapping("/transactions/interest-log")
+    public ResponseEntity<Set<TransactionResponse>> getInterestTransactionLogs() {
+        return ResponseEntity.ok(transactionService.findAllByTransactionType(TransactionType.DEPOSIT));
+    }
+
 
       @PostMapping("/accounts/{accountId}/decline")
     public ResponseEntity<AccountResponse> declineAccount(@PathVariable Long accountId) {

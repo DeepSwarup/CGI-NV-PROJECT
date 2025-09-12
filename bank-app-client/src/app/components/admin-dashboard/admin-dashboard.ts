@@ -3,14 +3,31 @@ import { CommonModule } from '@angular/common';
 import { AdminService } from '../../services/admin.service';
 import { Account } from '../../models/account';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Routes } from '@angular/router';
+import { InterestLogComponent } from '../interest-log/interest-log';
+import { RouterLink } from '@angular/router';
+
+const routes: Routes = [
+  {
+    path: 'admin',
+    children: [
+      { path: 'interest-log', component: InterestLogComponent }
+    ]
+  }
+];
+
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './admin-dashboard.html',
   styleUrls: ['./admin-dashboard.css']
 })
+
+
+
+
 export class AdminDashboardComponent implements OnInit {
   private adminService = inject(AdminService);
   private fb = inject(FormBuilder);
@@ -19,12 +36,24 @@ export class AdminDashboardComponent implements OnInit {
   isLoading = signal(true);
   error = signal<string | null>(null);
 
-  // State for the interest rate modal
+  // --- State for Term Account Approval Modal ---
+  showApprovalModal = signal(false);
+  accountToApprove = signal<Account | null>(null);
+  approvalForm: FormGroup;
+
+  // --- State for Set Interest Rate Modal ---
   showInterestModal = signal(false);
   currentAccountForEdit = signal<Account | null>(null);
   interestRateForm: FormGroup;
 
   constructor() {
+    // Form for approving a Term Account
+    this.approvalForm = this.fb.group({
+      interestRate: ['', [Validators.required, Validators.min(0), Validators.max(20)]],
+      penaltyAmount: ['', [Validators.required, Validators.min(0)]]
+    });
+
+    // Form for setting the interest rate of an already ACTIVE account
     this.interestRateForm = this.fb.group({
       interestRate: ['', [Validators.required, Validators.min(0), Validators.max(20)]]
     });
@@ -38,7 +67,6 @@ export class AdminDashboardComponent implements OnInit {
     this.isLoading.set(true);
     this.adminService.getAllAccounts().subscribe({
       next: (data) => {
-        // Sort to show PENDING accounts on top
         data.sort((a, b) => (a.status === 'PENDING' ? -1 : b.status === 'PENDING' ? 1 : 0));
         this.accounts.set(data);
         this.isLoading.set(false);
@@ -51,15 +79,57 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
-  approve(accountId: number) {
-    this.adminService.approveAccount(accountId).subscribe({ next: () => this.loadAccounts() });
+
+  creditInterest(accountId: number) {
+    if (confirm(`Are you sure you want to calculate and credit interest for Account #${accountId}?`)) {
+      this.adminService.creditInterest(accountId).subscribe({
+        next: () => {
+          alert('Interest credited successfully!');
+          this.loadAccounts(); // Refresh the list to show the new balance
+        },
+        error: (err) => alert(`Error: ${err.error?.message || 'Could not credit interest.'}`)
+      });
+    }
+  }
+
+  approveSavings(accountId: number) {
+    this.adminService.approveSavingsAccount(accountId).subscribe({ next: () => this.loadAccounts() });
   }
 
   decline(accountId: number) {
     this.adminService.declineAccount(accountId).subscribe({ next: () => this.loadAccounts() });
   }
 
-  // --- Methods for Interest Rate Modal ---
+  // --- Methods for Term Account Approval Modal ---
+  openApprovalModal(account: Account) {
+    this.accountToApprove.set(account);
+    this.approvalForm.patchValue({
+      interestRate: account.interestRate || 6.0,
+      penaltyAmount: account.penaltyAmount || 0
+    });
+    this.showApprovalModal.set(true);
+  }
+
+  closeApprovalModal() {
+    this.showApprovalModal.set(false);
+    this.accountToApprove.set(null);
+    this.approvalForm.reset();
+  }
+
+  submitApproval() {
+    if (this.approvalForm.invalid || !this.accountToApprove()) return;
+    const accountId = this.accountToApprove()!.accountId;
+    const formData = this.approvalForm.value;
+    this.adminService.approveTermAccount(accountId, formData).subscribe({
+      next: () => {
+        this.closeApprovalModal();
+        this.loadAccounts();
+      },
+      error: (err) => alert(`Failed to approve: ${err.message}`)
+    });
+  }
+  
+  // --- Methods for Set Interest Rate Modal ---
   openInterestModal(account: Account) {
     this.currentAccountForEdit.set(account);
     this.interestRateForm.patchValue({ interestRate: account.interestRate });
@@ -71,17 +141,15 @@ export class AdminDashboardComponent implements OnInit {
     this.currentAccountForEdit.set(null);
     this.interestRateForm.reset();
   }
-
+  
   saveInterestRate() {
     if (this.interestRateForm.invalid || !this.currentAccountForEdit()) return;
-
     const accountId = this.currentAccountForEdit()!.accountId;
     const newRate = this.interestRateForm.value.interestRate;
-
     this.adminService.updateInterestRate(accountId, newRate).subscribe({
       next: () => {
         this.closeInterestModal();
-        this.loadAccounts(); // Refresh the list to show the new rate
+        this.loadAccounts();
       },
       error: (err) => alert(`Failed to update rate: ${err.message}`)
     });

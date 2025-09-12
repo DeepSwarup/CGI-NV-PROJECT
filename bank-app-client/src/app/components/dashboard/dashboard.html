@@ -39,9 +39,12 @@
                                             </div>
                                             <div class="text-muted small">ID: {{ acc.accountId }}</div>
                                         </div>
+
                                         <div class="text-end">
                                             <div class="fw-bold">{{ acc.balance | currency:'INR' }}</div>
                                             <div class="text-muted small">{{ acc.interestRate }}% p.a.</div>
+                                            <div *ngIf="acc.accountType === 'TERM'" class="text-muted small">Penalty: {{ acc.penaltyAmount | currency:'INR' }}</div>
+    
                                         </div>
                                     </div>
                                 </div>
@@ -92,7 +95,52 @@
 <!-- All modals remain unchanged at the bottom -->
 <!-- Create Account Modal -->
 <div *ngIf="showAccountModal()" class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);">
-    <div class="modal-dialog modal-dialog-centered"><div class="modal-content"><form [formGroup]="accountForm" (ngSubmit)="createAccount()"><div class="modal-header"><h5 class="modal-title">Create New Bank Account</h5><button type="button" class="btn-close" (click)="closeModal()"></button></div><div class="modal-body"><div class="mb-3"><label class="form-label">Account Type</label><select formControlName="accountType" class="form-select"><option value="SAVINGS">Savings</option><option value="TERM">Term (Fixed)</option></select></div><div class="mb-3"><label class="form-label">Initial Deposit</label><input type="number" formControlName="initialDeposit" class="form-control"></div><div *ngIf="accountForm.get('accountType')?.value === 'SAVINGS'"><div class="mb-3"><label class="form-label">Minimum Balance</label><input type="number" formControlName="minBalance" class="form-control"></div></div><div *ngIf="accountForm.get('accountType')?.value === 'TERM'"><div class="mb-3"><label class="form-label">Term Amount</label><input type="number" formControlName="amount" class="form-control"></div><div class="mb-3"><label class="form-label">Duration (Months)</label><input type="number" formControlName="months" class="form-control"></div></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button><button type="submit" class="btn btn-primary" [disabled]="accountForm.invalid">Submit for Approval</button></div></form></div></div>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form [formGroup]="accountForm" (ngSubmit)="createAccount()">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create New Bank Account</h5>
+                    <button type="button" class="btn-close" (click)="closeModal()"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Account Type</label>
+                        <select formControlName="accountType" class="form-select">
+                            <option value="SAVINGS">Savings</option>
+                            <option value="TERM">Term (Fixed)</option>
+                        </select>
+                    </div>
+                    
+                    <!-- This field is now used for both Savings and Term initial deposits -->
+                    <div class="mb-3">
+                        <label class="form-label">Deposit Amount</label>
+                        <input type="number" formControlName="initialDeposit" class="form-control">
+                    </div>
+
+                    <!-- Savings Fields -->
+                    <div *ngIf="accountForm.get('accountType')?.value === 'SAVINGS'">
+                        <div class="mb-3">
+                            <label class="form-label">Minimum Balance</label>
+                            <input type="number" formControlName="minBalance" class="form-control">
+                        </div>
+                    </div>
+
+                    <!-- Term Fields -->
+                    <div *ngIf="accountForm.get('accountType')?.value === 'TERM'">
+                        <!-- REMOVED: The redundant "Term Amount" field is gone -->
+                        <div class="mb-3">
+                            <label class="form-label">Duration (Months)</label>
+                            <input type="number" formControlName="months" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary" [disabled]="accountForm.invalid">Submit for Approval</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 <!-- Transfer Money Modal -->

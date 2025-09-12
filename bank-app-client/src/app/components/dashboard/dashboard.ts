@@ -30,6 +30,7 @@ export class Dashboard implements OnInit {
   private accountService = inject(AccountService);
   private transactionService = inject(TransactionService);
   private beneficiaryService = inject(BeneficiaryService);
+  
 
   // Main data signals
   customer = signal<CustomerInfo | null>(null);
@@ -66,7 +67,7 @@ export class Dashboard implements OnInit {
       accountType: ['SAVINGS', Validators.required],
       initialDeposit: [500, [Validators.required, Validators.min(100)]],
       minBalance: [500],
-      amount: [10000],
+      // amount: [10000],
       months: [12],
     });
 
@@ -130,12 +131,12 @@ export class Dashboard implements OnInit {
   createAccount() {
     if (this.accountForm.invalid || !this.customer()) return;
     const { accountType, ...rest } = this.accountForm.value;
+    // The payload is now simpler and correct for both account types
     const payload = { ...rest, customerId: this.customer()!.customerId };
 
     const apiCall = accountType === 'SAVINGS'
       ? this.accountService.createSavingsAccount(payload)
       : this.accountService.createTermAccount(payload);
-
     apiCall.subscribe({
       next: () => {
         alert('Account creation request sent!');

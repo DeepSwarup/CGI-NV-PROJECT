@@ -1,0 +1,42 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="mb-1">Interest Transaction Log</h1>
+        <p class="text-muted">A record of all interest payments credited to customer accounts.</p>
+    </div>
+    <a routerLink="/admin/dashboard" class="btn btn-secondary">Back to Dashboard</a>
+</div>
+
+<div *ngIf="isLoading()" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status"></div>
+</div>
+<div *ngIf="error()" class="alert alert-danger">{{ error() }}</div>
+
+<div *ngIf="!isLoading() && !error()" class="card">
+    <div class="card-body p-0">
+        <div *ngIf="transactions().length > 0; else noTransactions" class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Transaction ID</th>
+                        <th>Date & Time</th>
+                        <th>Credited To Account</th>
+                        <th>Amount</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let tx of transactions()">
+                        <td>#{{ tx.transactionId }}</td>
+                        <td>{{ tx.transactionDateandTime | date:'medium' }}</td>
+                        <td>#{{ tx.accountId }}</td>
+                        <td class="text-success fw-bold">{{ tx.amount | currency:'INR' }}</td>
+                        <td>{{ tx.transactionRemarks }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <ng-template #noTransactions>
+            <p class="text-center text-muted p-4">No interest payment transactions found.</p>
+        </ng-template>
+    </div>
+</div>
