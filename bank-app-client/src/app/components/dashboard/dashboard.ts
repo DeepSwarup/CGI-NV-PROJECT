@@ -18,7 +18,7 @@ import { Beneficiary } from '../../models/beneficiary';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css']
 })
@@ -30,7 +30,7 @@ export class Dashboard implements OnInit {
   private accountService = inject(AccountService);
   private transactionService = inject(TransactionService);
   private beneficiaryService = inject(BeneficiaryService);
-  
+
 
   // Main data signals
   customer = signal<CustomerInfo | null>(null);
@@ -44,7 +44,7 @@ export class Dashboard implements OnInit {
   isProfileComplete = signal(false);
   hasAddedNominee = signal(false);
   setupProgress = signal(0);
-  
+
   // Modals and forms
   showAccountModal = signal(false);
   showTransferModal = signal(false);
@@ -75,7 +75,7 @@ export class Dashboard implements OnInit {
       senderAccountId: ['', Validators.required],
       receiverAccountId: ['', Validators.required],
       amount: ['', [Validators.required, Validators.min(1)]],
-      remarks: [''], 
+      remarks: [''],
     });
   }
 

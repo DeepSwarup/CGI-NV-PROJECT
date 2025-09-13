@@ -11,6 +11,7 @@ import { Customer } from '../../models/customer';
   providedIn: 'root'
 })
 export class NomineeService {
+  private readonly base = `${environment.apiBaseUrl}/nominees`
   private http = inject(HttpClient);
 
 
@@ -26,11 +27,11 @@ export class NomineeService {
 
     const headers = this.getHeaders();
 
-    return this.http.get<Customer>(environment.customersUrl, { headers })
+    return this.http.get<Customer>(`${environment.apiBaseUrl}/customers`, { headers })
       .pipe(
         switchMap(customer => {
           console.log("Resolved customer:", customer);
-          return this.http.get<Account[]>(`${environment.accountsUrl}/${customer.customerId}`, { headers });
+          return this.http.get<Account[]>(`${environment.apiBaseUrl}/accounts/customer/${customer.customerId}`, { headers });
         }),
         switchMap(accounts => {
           console.log('Accounts fetched successfully:', accounts);
@@ -43,7 +44,7 @@ export class NomineeService {
 
           // Fetch nominees for each account
           const nomineeRequests = accounts.map(account =>
-            this.http.get<Nominee[]>(`${environment.nomineesUrl}/${account.accountId}`, { headers })
+            this.http.get<Nominee[]>(`${this.base}/${account.accountId}`, { headers })
               .pipe(
                 catchError(err => {
                   if (err.status === 404) {
@@ -77,7 +78,7 @@ export class NomineeService {
     console.log('Creating new nominee:', nomineeData);
     const headers = this.getHeaders();
     const createRequest: CreateNomineeRequest = this.processNomineeData(nomineeData, false);
-    return this.http.post(environment.nomineesUrl, createRequest, { headers });
+    return this.http.post(`${this.base}`, createRequest, { headers });
   }
 
 
@@ -85,13 +86,13 @@ export class NomineeService {
     console.log('Updating nominee with ID:', nomineeId, nomineeData);
     const headers = this.getHeaders();
     const updateRequest: UpdateNomineeRequest = this.processNomineeData(nomineeData, true);
-    return this.http.put(`${environment.nomineesUrl}/${nomineeId}`, updateRequest, { headers });
+    return this.http.put(`${this.base}/${nomineeId}`, updateRequest, { headers });
   }
 
 
   deleteNominee(nomineeId: number): Observable<any> {
     const headers = this.getHeaders();
-    return this.http.delete(`${environment.nomineesUrl}/${nomineeId}`, {
+    return this.http.delete(`${this.base}/${nomineeId}`, {
       headers,
       responseType: 'text'
     });
@@ -146,10 +147,10 @@ export class NomineeService {
   }
 
 
-  canAddNomineeToAccount(account: Account): boolean {
-    const currentCount = account.nominees?.length || 0;
-    return currentCount < environment.validation.maxNomineesPerAccount;
-  }
+  // canAddNomineeToAccount(account: Account): boolean {
+  //   const currentCount = account.nominees?.length || 0;
+  //   return currentCount < environment.validation.maxNomineesPerAccount;
+  // }
 
   findNomineeInAccounts(nomineeId: string, accounts: Account[]): { nominee: Nominee | null, account: Account | null } {
     for (const account of accounts) {

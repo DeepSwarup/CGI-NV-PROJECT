@@ -61,9 +61,9 @@ export class BeneficiaryComponent {
 
 
   hasAnyBeneficiaries(): boolean {
-  const list = this.accounts();   // signal value
-  return Array.isArray(list) && list.some(acc => acc.beneficiaries?.length > 0);
-}
+    const list = this.accounts();   // signal value
+    return Array.isArray(list) && list.some(acc => acc.beneficiaries?.length > 0);
+  }
 
 
   fetchAccounts(): void {
@@ -140,13 +140,13 @@ export class BeneficiaryComponent {
     }
 
     // Business logic validation for new beneficiaries
-    if (!this.isEditMode()) {
-      const selectedAccount = this.beneficiaryService.findAccountById(formValue.accountId, this.accounts());
-      if (selectedAccount && !this.beneficiaryService.canAddBeneficiaryToAccount(selectedAccount)) {
-        this.beneficiaryError.set(`Maximum ${environment.validation.maxBeneficiariesPerAccount} beneficiaries allowed per account`);
-        return;
-      }
-    }
+    // if (!this.isEditMode()) {
+    //   const selectedAccount = this.beneficiaryService.findAccountById(formValue.accountId, this.accounts());
+    //   if (selectedAccount && !this.beneficiaryService.canAddBeneficiaryToAccount(selectedAccount)) {
+    //     this.beneficiaryError.set(`Maximum ${environment.validation.maxBeneficiariesPerAccount} beneficiaries allowed per account`);
+    //     return;
+    //   }
+    // }
 
     this.beneficiaryError.set(null);
     console.log('All validations passed, proceeding with save');
@@ -165,7 +165,6 @@ export class BeneficiaryComponent {
         }
       });
     } else {
-      // Create beneficiary
       this.beneficiaryService.createBeneficiary(formValue).subscribe({
         next: (response) => {
           console.log('Beneficiary created successfully', response);
@@ -225,7 +224,6 @@ export class BeneficiaryComponent {
 
     const searchResult = this.beneficiaryService.findBeneficiaryInAccounts(beneficiaryId, this.accounts());
 
-    // Simulate search delay
     setTimeout(() => {
       if (searchResult.beneficiary) {
         console.log('Beneficiary found in customer accounts:', searchResult.beneficiary);

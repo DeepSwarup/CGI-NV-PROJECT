@@ -10,6 +10,7 @@ import { Customer } from '../../models/customer';
   providedIn: 'root'
 })
 export class BeneficiaryService {
+  private readonly base = `${environment.apiBaseUrl}/beneficiaries`;
   private http = inject(HttpClient);
 
   private getHeaders(): HttpHeaders {
@@ -19,19 +20,19 @@ export class BeneficiaryService {
   }
 
   listAllBeneficiaries(accountId: number): Observable<Beneficiary[]> {
-  const headers = this.getHeaders();
-  return this.http.get<Beneficiary[]>(`${environment.beneficiariesUrl}/account/${accountId}`, { headers })
-    .pipe(
-      catchError(err => {
-        if (err.status === 404) {
-          console.log(`No beneficiaries found for account ${accountId}`);
+    const headers = this.getHeaders();
+    return this.http.get<Beneficiary[]>(`${this.base}/account/${accountId}`, { headers })
+      .pipe(
+        catchError(err => {
+          if (err.status === 404) {
+            console.log(`No beneficiaries found for account ${accountId}`);
+            return of([]);
+          }
+          console.error(`Error fetching beneficiaries for account ${accountId}:`, err);
           return of([]);
-        }
-        console.error(`Error fetching beneficiaries for account ${accountId}:`, err);
-        return of([]);
-      })
-    );
-}
+        })
+      );
+  }
 
 
   fetchAccountsWithBeneficiaries(): Observable<Account[]> {
@@ -39,11 +40,11 @@ export class BeneficiaryService {
 
     const headers = this.getHeaders();
 
-    return this.http.get<Customer>(environment.customersUrl, { headers })
+    return this.http.get<Customer>(`${environment.apiBaseUrl}/customers`, { headers })
       .pipe(
         switchMap(customer => {
           console.log("Resolved customer:", customer);
-          return this.http.get<Account[]>(`${environment.accountsUrl}/${customer.customerId}`, { headers });
+          return this.http.get<Account[]>(`${environment.apiBaseUrl}/accounts/customer/${customer.customerId}`, { headers });
         }),
         switchMap(accounts => {
           console.log('Accounts fetched successfully:', accounts);
@@ -55,7 +56,7 @@ export class BeneficiaryService {
           }
 
           const beneficiaryRequests = accounts.map(account =>
-            this.http.get<Beneficiary[]>(`${environment.beneficiariesUrl}/account/${account.accountId}`, { headers })
+            this.http.get<Beneficiary[]>(`${this.base}/account/${account.accountId}`, { headers })
               .pipe(
                 catchError(err => {
                   if (err.status === 404) {
@@ -90,7 +91,7 @@ export class BeneficiaryService {
     const headers = this.getHeaders();
     const createRequest: CreateBeneficiaryRequest = this.processBeneficiaryData(beneficiaryData, false);
 
-    return this.http.post(environment.beneficiariesUrl, createRequest, { headers });
+    return this.http.post(`${this.base}`, createRequest, { headers });
   }
 
 
@@ -100,13 +101,13 @@ export class BeneficiaryService {
     const headers = this.getHeaders();
     const updateRequest: UpdateBeneficiaryRequest = this.processBeneficiaryData(beneficiaryData, true);
 
-    return this.http.put(`${environment.beneficiariesUrl}/${beneficiaryId}`, updateRequest, { headers });
+    return this.http.put(`${this.base}/${beneficiaryId}`, updateRequest, { headers });
   }
 
 
   deleteBeneficiary(beneficiaryId: number): Observable<any> {
     const headers = this.getHeaders();
-    return this.http.delete(`${environment.beneficiariesUrl}/${beneficiaryId}`, {
+    return this.http.delete(`${this.base}/${beneficiaryId}`, {
       headers,
       responseType: 'text'
     });
@@ -160,10 +161,10 @@ export class BeneficiaryService {
   }
 
 
-  canAddBeneficiaryToAccount(account: Account): boolean {
-    const currentCount = account.beneficiaries?.length || 0;
-    return currentCount < environment.validation.maxBeneficiariesPerAccount;
-  }
+  // canAddBeneficiaryToAccount(account: Account): boolean {
+  //   const currentCount = account.beneficiaries?.length || 0;
+  //   return currentCount < environment.validation.maxBeneficiariesPerAccount;
+  // }
 
   findBeneficiaryInAccounts(beneficiaryId: string, accounts: Account[]): { beneficiary: Beneficiary | null, account: Account | null } {
     for (const account of accounts) {

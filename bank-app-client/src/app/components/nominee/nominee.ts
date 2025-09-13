@@ -10,7 +10,7 @@ import { NomineeService } from '../../services/nominee/nominee';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './nominee.html',
-  styleUrls: ['./nominee.css'], // Use new CSS file
+  styleUrls: ['./nominee.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NomineeComponent {
@@ -98,9 +98,9 @@ export class NomineeComponent {
 
 
   hasAnyNominees(): boolean {
-  const list = this.accounts();   // accounts is a signal
-  return Array.isArray(list) && list.some(acc => acc.nominees?.length > 0);
-}
+    const list = this.accounts();   // accounts is a signal
+    return Array.isArray(list) && list.some(acc => acc.nominees?.length > 0);
+  }
 
 
   onDeleteNomineeClick(nomineeId: number): void {
