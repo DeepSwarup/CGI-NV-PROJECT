@@ -12,10 +12,16 @@
     <aside class="sidebar" [class.visible]="isSidebarVisible()">
       <div class="sidebar-header">
         <i class="bi bi-bank2"></i>
-        <span>BankNet</span>
+        <span>Web Bank</span>
       </div>
       <nav class="sidebar-nav">
-        <a routerLink="/dashboard" routerLinkActive="active" (click)="isSidebarVisible.set(false)">
+
+        <a routerLink="/admin/dashboard" routerLinkActive="active" (click)="isSidebarVisible.set(false)" *ngIf="role === 'ADMIN'">
+          <i class="bi bi-grid-1x2-fill"></i>
+          <span>Admin Panel</span>
+        </a>
+        
+        <a routerLink="/dashboard" routerLinkActive="active" (click)="isSidebarVisible.set(false)" >
           <i class="bi bi-grid-1x2-fill"></i>
           <span>Overview</span>
         </a>
