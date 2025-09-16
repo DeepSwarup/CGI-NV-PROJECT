@@ -14,12 +14,14 @@ export class App implements OnInit {
   private authService = inject(Auth);
 
   isAuthenticated = false;
+  role: 'CUSTOMER' | 'ADMIN' | null = null
   userNameInitial = '';
   isSidebarVisible = signal(false); // Signal to manage sidebar visibility on mobile
 
   ngOnInit() {
     this.authService.currentUser$.subscribe(user => {
       this.isAuthenticated = !!user;
+      this.role = user?.role || null
       if (user) {
         this.userNameInitial = user.name.charAt(0).toUpperCase();
       }
