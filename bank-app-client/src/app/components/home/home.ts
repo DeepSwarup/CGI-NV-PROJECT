@@ -23,11 +23,11 @@ export class Home {
     title: 'Seamless Transactions',
     description: 'Deposit, withdraw, and transfer funds effortlessly. Your balance updates in real-time, anytime, anywhere.'
   },
-  {
-    icon: 'bi-robot', // Bootstrap equivalent of Bot
-    title: 'AI-Powered Insights',
-    description: 'Get smart summaries of your spending patterns and savings trends to make informed financial decisions.'
-  },
+  // {
+  //   icon: 'bi-robot', // Bootstrap equivalent of Bot
+  //   title: 'AI-Powered Insights',
+  //   description: 'Get smart summaries of your spending patterns and savings trends to make informed financial decisions.'
+  // },
   {
     icon: 'bi-shield-check', // Bootstrap equivalent of ShieldCheck
     title: 'Secure & Reliable',

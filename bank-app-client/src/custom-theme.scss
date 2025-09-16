@@ -4,18 +4,18 @@
 // components according to the Material 3 design spec.
 // Learn more about theming and how to use it for your application's
 // custom components at https://material.angular.dev/guide/theming
-@use '@angular/material' as mat;
+// @use '@angular/material' as mat;
 
-html {
-  @include mat.theme((
-    color: (
-      primary: mat.$azure-palette,
-      tertiary: mat.$blue-palette,
-    ),
-    typography: Roboto,
-    density: 0,
-  ));
-}
+// html {
+//   @include mat.theme((
+//     color: (
+//       primary: mat.$azure-palette,
+//       tertiary: mat.$blue-palette,
+//     ),
+//     typography: Roboto,
+//     density: 0,
+//   ));
+// }
 
 body {
   // Default the application to a light color theme. This can be changed to
