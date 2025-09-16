@@ -1,7 +1,25 @@
 package com.bank.bankApp.services;
 
-import com.bank.bankApp.dtos.*;
-import com.bank.bankApp.entity.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.bank.bankApp.dtos.AccountApprovalRequest;
+import com.bank.bankApp.dtos.AccountResponse;
+import com.bank.bankApp.dtos.SavingsAccountRequest;
+import com.bank.bankApp.dtos.TermAccountRequest;
+import com.bank.bankApp.dtos.TransactionResponse;
+import com.bank.bankApp.entity.Account;
+import com.bank.bankApp.entity.Customer;
+import com.bank.bankApp.entity.SavingsAccount;
+import com.bank.bankApp.entity.TermAccount;
+import com.bank.bankApp.entity.Transaction;
 import com.bank.bankApp.enums.AccountStatus;
 import com.bank.bankApp.enums.TransactionStatus;
 import com.bank.bankApp.enums.TransactionType;
@@ -10,23 +28,18 @@ import com.bank.bankApp.mapper.TransactionMapper;
 import com.bank.bankApp.repository.AccountRepository;
 import com.bank.bankApp.repository.CustomerRepository;
 import com.bank.bankApp.repository.TransactionRepository;
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 import com.bank.bankApp.utils.AccountNumberGenerator;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class AccountService implements IAccountService {
 
     @Autowired
     private AccountRepository accountRepository;
+
+    @Autowired
+    private OtpService otpService;
 
     @Autowired
     private CustomerRepository customerRepository;
@@ -164,26 +177,31 @@ public class AccountService implements IAccountService {
         return AccountMapper.toDTO(savedAccount);
     }
 
-    @Override
+     @Override
     @Transactional
     public TransactionResponse transferMoney(Long senderAccountId, Long receiverAccountId, 
-                                             double amount, String username, String password) {
+                                             double amount, String remarks, String otp) {
         Account senderAccount = accountRepository.findById(senderAccountId)
                 .orElseThrow(() -> new RuntimeException("Sender account not found"));
         
+        try {
+            Long userId = senderAccount.getCustomer().getUser().getId();
+            boolean isOtpValid = otpService.verifyOtp(userId, "TRANSFER", otp);
+            if (!isOtpValid) {
+                throw new RuntimeException("Invalid or expired OTP.");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("OTP verification failed: " + e.getMessage());
+        }
+
         Account receiverAccount = accountRepository.findById(receiverAccountId)
                 .orElseThrow(() -> new RuntimeException("Receiver account not found"));
         
-        // Add status checks
-        if (senderAccount.getStatus() != AccountStatus.ACTIVE) {
-            throw new RuntimeException("Sender account is not active.");
+        if (senderAccount.getStatus() != AccountStatus.ACTIVE || receiverAccount.getStatus() != AccountStatus.ACTIVE) {
+            throw new RuntimeException("Both accounts must be active for transfers.");
         }
-        if (receiverAccount.getStatus() != AccountStatus.ACTIVE) {
-            throw new RuntimeException("Receiver account is not active.");
-        }
-
         if (senderAccount.getBalance() < amount) {
-            throw new RuntimeException("Insufficient funds");
+            throw new RuntimeException("Insufficient funds.");
         }
 
         senderAccount.setBalance(senderAccount.getBalance() - amount);
@@ -192,11 +210,10 @@ public class AccountService implements IAccountService {
         accountRepository.save(senderAccount);
         accountRepository.save(receiverAccount);
 
-        Transaction withdrawal = createTransaction(senderAccount, amount, 
-                TransactionType.TRANSFER, "Transfer to account: " + receiverAccountId);
+        String senderRemarks = (remarks == null || remarks.isEmpty()) ? "Transfer to account: " + receiverAccountId : remarks;
+        Transaction withdrawal = createTransaction(senderAccount, amount, TransactionType.TRANSFER, senderRemarks);
         
-        createTransaction(receiverAccount, amount, 
-                TransactionType.TRANSFER, "Transfer from account: " + senderAccountId);
+        createTransaction(receiverAccount, amount, TransactionType.DEPOSIT, "Transfer from account: " + senderAccountId);
 
         return TransactionMapper.toDTO(withdrawal);
     }

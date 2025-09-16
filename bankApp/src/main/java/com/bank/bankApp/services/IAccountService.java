@@ -1,22 +1,21 @@
 package com.bank.bankApp.services;
 
-import com.bank.bankApp.dtos.AccountApprovalRequest;
-import com.bank.bankApp.dtos.AccountResponse;
-import com.bank.bankApp.dtos.SavingsAccountRequest;
-import com.bank.bankApp.dtos.TermAccountRequest;
-import com.bank.bankApp.dtos.TransactionResponse;
-import com.bank.bankApp.entity.SavingsAccount;
-import com.bank.bankApp.entity.TermAccount;
-import com.bank.bankApp.enums.AccountStatus; 
-
+import com.bank.bankApp.dtos.*;
+import com.bank.bankApp.enums.AccountStatus;
 import java.util.Set;
 
 public interface IAccountService {
     
     AccountResponse addSavingsAccount(SavingsAccountRequest request);
     AccountResponse addTermAccount(TermAccountRequest request);
+
+    /**
+     * CORRECTED: The signature now includes 'remarks' and 'otp' and removes the old parameters.
+     * This will now match the implementation in AccountService.java.
+     */
     TransactionResponse transferMoney(Long senderAccountId, Long receiverAccountId, 
-                                     double amount, String username, String password);
+                                     double amount, String remarks, String otp);
+
     TransactionResponse withdraw(Long accountId, double amount, String username, String password);
     TransactionResponse deposit(Long accountId, double amount);
     AccountResponse findAccountById(Long accountId);
@@ -29,8 +28,6 @@ public interface IAccountService {
     AccountResponse updateAccountStatus(Long accountId, AccountStatus status);
     AccountResponse updateInterestRate(Long accountId, double newInterestRate);
     AccountResponse approveTermAccount(Long accountId, AccountApprovalRequest request);
-    // TransactionResponse creditInterest(Long accountId);
     TransactionResponse creditInterest(Long accountId);
-
-    // approveTermAccount
 }
+
