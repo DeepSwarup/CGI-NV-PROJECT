@@ -96,7 +96,7 @@ export class BeneficiaryComponent {
     this.beneficiaryForm.markAsPristine();
     this.beneficiaryError.set(null);
     this.showBeneficiaryModal.set(true);
-    console.log('Add modal opened with account ID:', accountId);
+    // console.log('Add modal opened with account ID:', accountId);
   }
 
 
@@ -130,7 +130,7 @@ export class BeneficiaryComponent {
 
   saveBeneficiary(): void {
     const formValue = this.beneficiaryForm.value;
-    console.log('Save beneficiary clicked, form value:', formValue);
+    // console.log('Save beneficiary clicked, form value:', formValue);
 
     // Validate form using service
     const validationError = this.beneficiaryService.validateBeneficiaryData(formValue);
@@ -149,13 +149,13 @@ export class BeneficiaryComponent {
     // }
 
     this.beneficiaryError.set(null);
-    console.log('All validations passed, proceeding with save');
+    // console.log('All validations passed, proceeding with save');
 
     if (this.isEditMode()) {
       // Update beneficiary
       this.beneficiaryService.updateBeneficiary(formValue.beneficiaryId, formValue).subscribe({
         next: (response) => {
-          console.log('Beneficiary updated successfully', response);
+          // console.log('Beneficiary updated successfully', response);
           this.fetchAccounts();
           this.closeModal();
         },
@@ -167,7 +167,7 @@ export class BeneficiaryComponent {
     } else {
       this.beneficiaryService.createBeneficiary(formValue).subscribe({
         next: (response) => {
-          console.log('Beneficiary created successfully', response);
+          // console.log('Beneficiary created successfully', response);
           this.fetchAccounts();
           this.closeModal();
         },
@@ -185,7 +185,7 @@ export class BeneficiaryComponent {
     if (confirm('Are you sure you want to delete this beneficiary?')) {
       this.beneficiaryService.deleteBeneficiary(beneficiaryId).subscribe({
         next: (response) => {
-          console.log('Beneficiary deleted successfully', response);
+          // console.log('Beneficiary deleted successfully', response);
           this.fetchAccounts();
         },
         error: (err) => {
@@ -214,7 +214,7 @@ export class BeneficiaryComponent {
     }
 
     const beneficiaryId = this.findBeneficiaryForm.get('beneficiaryId')?.value;
-    console.log('Searching for beneficiary ID:', beneficiaryId);
+    // console.log('Searching for beneficiary ID:', beneficiaryId);
     if (!beneficiaryId) return;
 
     this.loadingFindBeneficiary.set(true);
@@ -226,11 +226,11 @@ export class BeneficiaryComponent {
 
     setTimeout(() => {
       if (searchResult.beneficiary) {
-        console.log('Beneficiary found in customer accounts:', searchResult.beneficiary);
+        // console.log('Beneficiary found in customer accounts:', searchResult.beneficiary);
         this.foundBeneficiary.set(searchResult.beneficiary);
         this.linkedAccount.set(searchResult.account);
       } else {
-        console.log('Beneficiary not found in customer accounts');
+        // console.log('Beneficiary not found in customer accounts');
         this.foundBeneficiary.set(null);
         this.linkedAccount.set(null);
       }
