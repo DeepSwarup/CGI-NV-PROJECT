@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { OtpService } from '../../services/otp.service'; 
 
 import { Auth } from '../../services/auth/auth';
 import { Profile, CustomerInfo } from '../../services/profile/profile';
@@ -30,6 +31,7 @@ export class Dashboard implements OnInit {
   private accountService = inject(AccountService);
   private transactionService = inject(TransactionService);
   private beneficiaryService = inject(BeneficiaryService);
+  private otpService = inject(OtpService);
 
 
   // Main data signals
@@ -51,6 +53,7 @@ export class Dashboard implements OnInit {
   transferError = signal<string | null>(null);
   accountForm: FormGroup;
   transferForm: FormGroup;
+  transferStep = signal(1);
 
   // Computed signal for transfer targets
   transferTargets = computed(() => {
@@ -76,6 +79,7 @@ export class Dashboard implements OnInit {
       receiverAccountId: ['', Validators.required],
       amount: ['', [Validators.required, Validators.min(1)]],
       remarks: [''],
+      otp: [''],
     });
   }
 
@@ -117,7 +121,10 @@ export class Dashboard implements OnInit {
   // --- Modal & Form Logic ---
   openModal(type: 'account' | 'transfer') {
     if (type === 'account') this.showAccountModal.set(true);
-    if (type === 'transfer') this.showTransferModal.set(true);
+    if (type === 'transfer') {
+      this.transferStep.set(1);
+      this.showTransferModal.set(true);
+    }
   }
 
   closeModal() {
@@ -126,6 +133,46 @@ export class Dashboard implements OnInit {
     this.transferError.set(null);
     this.accountForm.reset({ accountType: 'SAVINGS', initialDeposit: 500 });
     this.transferForm.reset();
+  }
+
+  
+  // Step 1: Generate OTP and move to the next step
+  requestTransferOtp() {
+    if (this.transferForm.get('senderAccountId')?.invalid || this.transferForm.get('receiverAccountId')?.invalid || this.transferForm.get('amount')?.invalid) {
+      this.transferError.set('Please fill in all required fields correctly.');
+      return;
+    }
+    this.transferError.set(null);
+
+    this.otpService.generateOtp('TRANSFER').subscribe({
+      next: () => {
+        this.transferStep.set(2); // Move to OTP entry screen
+      },
+      error: (err) => {
+        this.transferError.set(err.error?.message || 'Could not send OTP. Please try again later.');
+      }
+    });
+  }
+
+  // Step 2: Verify OTP and execute the transfer
+  confirmTransfer() {
+    this.transferForm.get('otp')?.setValidators([Validators.required, Validators.minLength(6), Validators.maxLength(6)]);
+    this.transferForm.get('otp')?.updateValueAndValidity();
+
+    if (this.transferForm.invalid) {
+      this.transferError.set('Please enter a valid 6-digit OTP.');
+      return;
+    }
+    this.transferError.set(null);
+
+    this.accountService.transferMoney(this.transferForm.value).subscribe({
+      next: () => {
+        alert('Transfer successful!');
+        this.closeModal();
+        this.loadDashboardData();
+      },
+      error: (err) => this.transferError.set(err.error || 'Transfer failed. Please check the OTP and details.')
+    });
   }
 
   createAccount() {

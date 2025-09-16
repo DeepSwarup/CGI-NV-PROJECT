@@ -145,6 +145,43 @@
 
 <!-- Transfer Money Modal -->
 <div *ngIf="showTransferModal()" class="modal fade show d-block" style="background-color: rgba(0,0,0,0.5);">
-    <div class="modal-dialog modal-dialog-centered"><div class="modal-content"><form [formGroup]="transferForm" (ngSubmit)="executeTransfer()"><div class="modal-header"><h5 class="modal-title">Transfer Money</h5><button type="button" class="btn-close" (click)="closeModal()"></button></div><div class="modal-body"><div *ngIf="transferError()" class="alert alert-danger">{{ transferError() }}</div><div class="mb-3"><label class="form-label">From Account</label><select formControlName="senderAccountId" class="form-select"><option value="" disabled>Select an account...</option><option *ngFor="let acc of accounts()" [value]="acc.accountId" [disabled]="acc.status !== 'ACTIVE'">{{ acc.accountType }} Account (#{{acc.accountId}}) - {{acc.balance | currency:'INR'}}</option></select></div><div class="mb-3"><label class="form-label">To Account / Beneficiary</label><select formControlName="receiverAccountId" class="form-select"><option value="" disabled>Select a destination...</option><option *ngFor="let target of transferTargets()" [value]="target.id">{{ target.name }}</option></select></div><div class="mb-3"><label class="form-label">Amount</label><input type="number" formControlName="amount" class="form-control" placeholder="0.00"></div><div class="mb-3"><label class="form-label">Remarks (Optional)</label><input type="text" formControlName="remarks" class="form-control" placeholder="e.g., Dinner payment"></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button><button type="submit" class="btn btn-primary" [disabled]="transferForm.invalid">Send Money</button></div></form></div></div>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form [formGroup]="transferForm">
+                <!-- STEP 1: Enter Details -->
+                <div *ngIf="transferStep() === 1">
+                    <div class="modal-header"><h5 class="modal-title">Transfer Money</h5><button type="button" class="btn-close" (click)="closeModal()"></button></div>
+                    <div class="modal-body">
+                        <div *ngIf="transferError()" class="alert alert-danger">{{ transferError() }}</div>
+                        <div class="mb-3"><label class="form-label">From Account</label><select formControlName="senderAccountId" class="form-select"><option value="" disabled>Select an account...</option><option *ngFor="let acc of accounts()" [value]="acc.accountId" [disabled]="acc.status !== 'ACTIVE'">{{ acc.accountType }} Account (#{{acc.accountId}}) - {{acc.balance | currency:'INR'}}</option></select></div>
+                        <div class="mb-3"><label class="form-label">To Account / Beneficiary</label><select formControlName="receiverAccountId" class="form-select"><option value="" disabled>Select a destination...</option><option *ngFor="let target of transferTargets()" [value]="target.id">{{ target.name }}</option></select></div>
+                        <div class="mb-3"><label class="form-label">Amount</label><input type="number" formControlName="amount" class="form-control" placeholder="0.00"></div>
+                        <div class="mb-3"><label class="form-label">Remarks (Optional)</label><input type="text" formControlName="remarks" class="form-control" placeholder="e.g., Dinner payment"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+                        <button type="button" class="btn btn-primary" (click)="requestTransferOtp()">Continue</button>
+                    </div>
+                </div>
+
+                <!-- STEP 2: Enter OTP -->
+                <div *ngIf="transferStep() === 2">
+                    <div class="modal-header"><h5 class="modal-title">Verify Transaction</h5><button type="button" class="btn-close" (click)="closeModal()"></button></div>
+                    <div class="modal-body">
+                        <div class="alert alert-info">An OTP has been sent to your registered email address.</div>
+                        <div *ngIf="transferError()" class="alert alert-danger">{{ transferError() }}</div>
+                        <div class="mb-3">
+                            <label class="form-label">Enter 6-Digit OTP</label>
+                            <input type="text" formControlName="otp" class="form-control" placeholder="******" maxlength="6">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" (click)="transferStep.set(1)">Back</button>
+                        <button type="button" class="btn btn-primary" (click)="confirmTransfer()">Confirm Transfer</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 

@@ -40,10 +40,13 @@ public class AccountController {
      @PostMapping("/transfer")
     public ResponseEntity<TransactionResponse> transferMoney(@RequestBody TransferRequest transferRequest) {
         // We pass empty strings for username/password as they are not used with JWT auth
-        TransactionResponse transaction = accountService.transferMoney(
+       TransactionResponse transaction = accountService.transferMoney(
                 transferRequest.getSenderAccountId(),
                 transferRequest.getReceiverAccountId(),
-                transferRequest.getAmount(), "", "");
+                transferRequest.getAmount(),
+                transferRequest.getRemarks(),
+                transferRequest.getOtp()
+        );
 
         return ResponseEntity.ok(transaction);
     }

@@ -27,7 +27,7 @@ export class AccountService {
       })
     );
   }
-transferMoney(transferData: { senderAccountId: number; receiverAccountId: number; amount: number; remarks: string }): Observable<Transaction> {
+transferMoney(transferData: { senderAccountId: number; receiverAccountId: number; amount: number; remarks: string ; otp: string }): Observable<Transaction> {
     // The second argument here IS the request body. No need for HttpParams or manual headers.
     return this.http.post<Transaction>(`${this.baseUrl}/transfer`, transferData);
   }
