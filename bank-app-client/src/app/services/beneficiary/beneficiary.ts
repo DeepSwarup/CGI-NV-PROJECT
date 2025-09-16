@@ -36,22 +36,22 @@ export class BeneficiaryService {
 
 
   fetchAccountsWithBeneficiaries(): Observable<Account[]> {
-    console.log('Fetching customer and accounts...');
+    // console.log('Fetching customer and accounts...');
 
     const headers = this.getHeaders();
 
     return this.http.get<Customer>(`${environment.apiBaseUrl}/customers`, { headers })
       .pipe(
         switchMap(customer => {
-          console.log("Resolved customer:", customer);
+          // console.log("Resolved customer:", customer);
           return this.http.get<Account[]>(`${environment.apiBaseUrl}/accounts/customer/${customer.customerId}`, { headers });
         }),
         switchMap(accounts => {
-          console.log('Accounts fetched successfully:', accounts);
-          console.log('Total accounts found:', accounts.length);
+          // console.log('Accounts fetched successfully:', accounts);
+          // console.log('Total accounts found:', accounts.length);
 
           if (!accounts || accounts.length === 0) {
-            console.log('No accounts found for customer');
+            // console.log('No accounts found for customer');
             return of([]);
           }
 
@@ -72,12 +72,12 @@ export class BeneficiaryService {
           // Combine accounts with their beneficiaries
           return forkJoin<Beneficiary[][]>(beneficiaryRequests).pipe(
             map((beneficiariesArrays: Beneficiary[][]) => {
-              console.log("beneficiaries:", beneficiariesArrays);
+              // console.log("beneficiaries:", beneficiariesArrays);
               const result = accounts.map((account, index) => ({
                 ...account,
                 beneficiaries: beneficiariesArrays[index] || []
               }));
-              console.log('Accounts with beneficiaries:', result);
+              // console.log('Accounts with beneficiaries:', result);
               return result;
             })
           );
@@ -86,7 +86,7 @@ export class BeneficiaryService {
   }
 
   createBeneficiary(beneficiaryData: any): Observable<any> {
-    console.log('Creating new beneficiary:', beneficiaryData);
+    // console.log('Creating new beneficiary:', beneficiaryData);
 
     const headers = this.getHeaders();
     const createRequest: CreateBeneficiaryRequest = this.processBeneficiaryData(beneficiaryData, false);
@@ -96,7 +96,7 @@ export class BeneficiaryService {
 
 
   updateBeneficiary(beneficiaryId: number, beneficiaryData: any): Observable<any> {
-    console.log('Updating beneficiary with ID:', beneficiaryId, beneficiaryData);
+    // console.log('Updating beneficiary with ID:', beneficiaryId, beneficiaryData);
 
     const headers = this.getHeaders();
     const updateRequest: UpdateBeneficiaryRequest = this.processBeneficiaryData(beneficiaryData, true);
