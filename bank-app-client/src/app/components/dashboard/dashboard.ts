@@ -14,6 +14,8 @@ import { Account } from '../../models/account';
 import { Transaction } from '../../models/transaction.model';
 import { Beneficiary } from '../../models/beneficiary';
 
+import { GeminiService } from '../../services/gemini.service';
+
 // const token = localStorage.getItem('authToken') || '';
 
 @Component({
@@ -32,6 +34,7 @@ export class Dashboard implements OnInit {
   private transactionService = inject(TransactionService);
   private beneficiaryService = inject(BeneficiaryService);
   private otpService = inject(OtpService);
+  private geminiService = inject(GeminiService);
 
 
   // Main data signals
@@ -41,6 +44,12 @@ export class Dashboard implements OnInit {
   beneficiaries = signal<Beneficiary[]>([]);
   isLoading = signal(true);
   userName = signal('');
+
+    // --- AI Summary Signals ---
+  isSummaryLoading = signal(false);
+  summaryText = signal<string | null>(null);
+  summaryError = signal<string | null>(null);
+
 
   // Setup checklist signals
   isProfileComplete = signal(false);
@@ -111,6 +120,31 @@ export class Dashboard implements OnInit {
       },
       error: () => this.isLoading.set(false)
     });
+  }
+
+  generateAiSummary() {
+    this.isSummaryLoading.set(true);
+    this.summaryText.set(null);
+    this.summaryError.set(null);
+
+    this.geminiService.getWeeklySummary().subscribe({
+      next: (response) => {
+        // Format the response for better display (e.g., convert markdown-like lists to HTML)
+        this.summaryText.set(this.formatSummary(response.summary));
+        this.isSummaryLoading.set(false);
+      },
+      error: (err) => {
+        this.summaryError.set('Could not generate summary at this time.');
+        this.isSummaryLoading.set(false);
+      }
+    });
+  }
+
+  // Helper to format the summary text from Gemini
+  private formatSummary(text: string): string {
+      return text
+          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
+          .replace(/\*/g, '<br>• '); // List items
   }
 
   updateSetupProgress() {
