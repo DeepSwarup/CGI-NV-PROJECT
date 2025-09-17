@@ -175,15 +175,36 @@ export class Dashboard implements OnInit {
     });
   }
 
+    // */
   createAccount() {
-    if (this.accountForm.invalid || !this.customer()) return;
-    const { accountType, ...rest } = this.accountForm.value;
-    // The payload is now simpler and correct for both account types
-    const payload = { ...rest, customerId: this.customer()!.customerId };
+    if (this.accountForm.invalid || !this.customer()) {
+        alert('Customer data is not loaded. Cannot create account.');
+        return;
+    }
+    
+    const formValue = this.accountForm.value;
+    const customerId = this.customer()!.customerId;
+    let payload;
+    let apiCall;
 
-    const apiCall = accountType === 'SAVINGS'
-      ? this.accountService.createSavingsAccount(payload)
-      : this.accountService.createTermAccount(payload);
+    if (formValue.accountType === 'SAVINGS') {
+      // Build a payload with only the fields needed for a Savings Account
+      payload = {
+        initialDeposit: formValue.initialDeposit,
+        minBalance: formValue.minBalance,
+        customerId: customerId
+      };
+      apiCall = this.accountService.createSavingsAccount(payload);
+    } else { // Term Account
+      // Build a payload with only the fields needed for a Term Account
+      payload = {
+        initialDeposit: formValue.initialDeposit,
+        months: formValue.months,
+        customerId: customerId
+      };
+      apiCall = this.accountService.createTermAccount(payload);
+    }
+
     apiCall.subscribe({
       next: () => {
         alert('Account creation request sent!');
