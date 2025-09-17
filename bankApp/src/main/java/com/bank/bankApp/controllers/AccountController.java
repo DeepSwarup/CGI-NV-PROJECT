@@ -37,7 +37,8 @@ public class AccountController {
         AccountResponse accountResponse = accountService.addTermAccount(termRequest);
         return new ResponseEntity<>(accountResponse, HttpStatus.CREATED);
     }
-     @PostMapping("/transfer")
+
+    @PostMapping("/transfer")
     public ResponseEntity<TransactionResponse> transferMoney(@RequestBody TransferRequest transferRequest) {
         // We pass empty strings for username/password as they are not used with JWT auth
        TransactionResponse transaction = accountService.transferMoney(
