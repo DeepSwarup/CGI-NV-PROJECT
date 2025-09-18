@@ -11,8 +11,9 @@ COPY bankApp/pom.xml .
 # Download dependencies
 RUN mvn dependency:go-offline
 
-# Copy the rest of the backend source code
-COPY bankApp/src .
+# CORRECTED: Copy the entire local 'src' directory into a 'src' directory inside the container
+# This preserves the correct Maven project structure (e.g., /app/src/main/java)
+COPY bankApp/src ./src
 
 # Package the application, skipping the tests
 RUN mvn clean package -DskipTests
@@ -33,3 +34,4 @@ EXPOSE 8080
 
 # The command to run the application when the container starts
 ENTRYPOINT ["java", "-jar", "app.jar"]
+
