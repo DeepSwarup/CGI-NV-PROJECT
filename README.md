@@ -4,7 +4,7 @@
 
 ## Project Setup
 
-### Clone the Repository
+### Clone the Repository 
 
 1. Clone the repository to your local machine
 2. Make your own branch
