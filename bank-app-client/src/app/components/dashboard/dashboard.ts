@@ -14,6 +14,8 @@ import { Account } from '../../models/account';
 import { Transaction } from '../../models/transaction.model';
 import { Beneficiary } from '../../models/beneficiary';
 
+import { GeminiService } from '../../services/gemini.service';
+
 // const token = localStorage.getItem('authToken') || '';
 
 @Component({
@@ -32,6 +34,7 @@ export class Dashboard implements OnInit {
   private transactionService = inject(TransactionService);
   private beneficiaryService = inject(BeneficiaryService);
   private otpService = inject(OtpService);
+  private geminiService = inject(GeminiService);
 
 
   // Main data signals
@@ -41,6 +44,12 @@ export class Dashboard implements OnInit {
   beneficiaries = signal<Beneficiary[]>([]);
   isLoading = signal(true);
   userName = signal('');
+
+    // --- AI Summary Signals ---
+  isSummaryLoading = signal(false);
+  summaryText = signal<string | null>(null);
+  summaryError = signal<string | null>(null);
+
 
   // Setup checklist signals
   isProfileComplete = signal(false);
@@ -113,6 +122,31 @@ export class Dashboard implements OnInit {
     });
   }
 
+  generateAiSummary() {
+    this.isSummaryLoading.set(true);
+    this.summaryText.set(null);
+    this.summaryError.set(null);
+
+    this.geminiService.getWeeklySummary().subscribe({
+      next: (response) => {
+        // Format the response for better display (e.g., convert markdown-like lists to HTML)
+        this.summaryText.set(this.formatSummary(response.summary));
+        this.isSummaryLoading.set(false);
+      },
+      error: (err) => {
+        this.summaryError.set('Could not generate summary at this time.');
+        this.isSummaryLoading.set(false);
+      }
+    });
+  }
+
+  // Helper to format the summary text from Gemini
+  private formatSummary(text: string): string {
+      return text
+          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
+          .replace(/\*/g, '<br>• '); // List items
+  }
+
   updateSetupProgress() {
     let completed = (this.isProfileComplete() ? 1 : 0) + (this.hasAddedNominee() ? 1 : 0);
     this.setupProgress.set((completed / 2) * 100);
@@ -175,15 +209,36 @@ export class Dashboard implements OnInit {
     });
   }
 
+    // */
   createAccount() {
-    if (this.accountForm.invalid || !this.customer()) return;
-    const { accountType, ...rest } = this.accountForm.value;
-    // The payload is now simpler and correct for both account types
-    const payload = { ...rest, customerId: this.customer()!.customerId };
+    if (this.accountForm.invalid || !this.customer()) {
+        alert('Customer data is not loaded. Cannot create account.');
+        return;
+    }
+    
+    const formValue = this.accountForm.value;
+    const customerId = this.customer()!.customerId;
+    let payload;
+    let apiCall;
 
-    const apiCall = accountType === 'SAVINGS'
-      ? this.accountService.createSavingsAccount(payload)
-      : this.accountService.createTermAccount(payload);
+    if (formValue.accountType === 'SAVINGS') {
+      // Build a payload with only the fields needed for a Savings Account
+      payload = {
+        initialDeposit: formValue.initialDeposit,
+        minBalance: formValue.minBalance,
+        customerId: customerId
+      };
+      apiCall = this.accountService.createSavingsAccount(payload);
+    } else { // Term Account
+      // Build a payload with only the fields needed for a Term Account
+      payload = {
+        initialDeposit: formValue.initialDeposit,
+        months: formValue.months,
+        customerId: customerId
+      };
+      apiCall = this.accountService.createTermAccount(payload);
+    }
+
     apiCall.subscribe({
       next: () => {
         alert('Account creation request sent!');

@@ -60,9 +60,13 @@ export class AccountCreationComponent {
       'Authorization': `Bearer ${localStorage.getItem('token')}`
     });
 
+// <<<<<<< deep
     // private readonly base = `${environment.apiBaseUrl}/nominees`
 
-    const url = `${environment.apiBaseUrl}/accounts/` + 
+//     const url = `${environment.apiBaseUrl}/accounts/` + 
+// =======
+    const url = 'https://cgi-bankapp-api.onrender.com/bank-api/accounts/' + 
+// >>>>>>> main
                 (this.isSavingsAccount ? 'savings' : 'term');
 
     // const url = 'http://localhost:8080/bank-api/accounts/' + 

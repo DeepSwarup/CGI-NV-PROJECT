@@ -37,7 +37,8 @@ transferMoney(transferData: { senderAccountId: number; receiverAccountId: number
   }
 
   // Create a new term account
-  createTermAccount(data: { customerId: number; initialDeposit: number; amount: number; months: number }): Observable<Account> {
+createTermAccount(data: { initialDeposit: number; months: number; customerId: number }): Observable<Account> {
     return this.http.post<Account>(`${this.baseUrl}/term`, data);
-  }
+}
+
 }

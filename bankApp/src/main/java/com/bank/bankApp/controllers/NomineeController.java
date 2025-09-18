@@ -31,9 +31,9 @@ public class NomineeController {
     public ResponseEntity<Set<NomineeResponse>> getNomineesByAccountId(@PathVariable Long accountId) {
         Set<NomineeResponse> nominees = nomineeService.listAllNominees(accountId);
 
-        if (nominees.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+//        if (nominees.isEmpty()) {
+//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//        }
         return new ResponseEntity<>(nominees, HttpStatus.OK);
     }
 

@@ -1,4 +1,4 @@
-<div *ngIf="!isLoading()">
+<div *ngIf="!isLoading()" style="margin: 2rem;">
     <!-- Welcome Header -->
     <h1 class="mb-1">Welcome back, {{ userName() }}!</h1>
     
@@ -22,6 +22,7 @@
                 </div>
             </div>
             <!-- END: Repositioned Quick Actions Card -->
+
 
             <div class="row g-4">
                 <!-- Your Accounts Card -->
@@ -91,6 +92,36 @@
         </div>
     </div>
 </div>
+
+
+            <!-- START: New Interactive AI Summary Card -->
+            <div class="card" style="margin:2rem">
+                <div class="card-body">
+                    <h5 class="card-title">AI Weekly Summary</h5>
+                    <p class="card-subtitle text-muted mb-3">Get an AI-powered summary of your spending from the last 7 days.</p>
+                    
+                    <!-- Loading State -->
+                    <div *ngIf="isSummaryLoading()" class="text-center py-3">
+                        <div class="spinner-border spinner-border-sm" role="status"></div>
+                        <p class="text-muted small mt-2 mb-0">Analyzing transactions...</p>
+                    </div>
+
+                    <!-- Error State -->
+                    <div *ngIf="summaryError()" class="alert alert-warning small">
+                        {{ summaryError() }}
+                    </div>
+
+                    <!-- Result State -->
+                    <div *ngIf="summaryText()" class="summary-content bg-light p-3 rounded" [innerHTML]="summaryText()">
+                    </div>
+                    
+                    <!-- Initial Button State -->
+                    <div *ngIf="!isSummaryLoading() && !summaryText()" class="d-grid">
+                         <button class="btn btn-primary" (click)="generateAiSummary()">Generate Summary</button>
+                    </div>
+                </div>
+            </div>
+            <!-- <!-- END: New Interactive AI Summary Car -->
 
 <!-- All modals remain unchanged at the bottom -->
 <!-- Create Account Modal -->

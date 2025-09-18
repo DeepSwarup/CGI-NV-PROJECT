@@ -23,19 +23,19 @@ export class NomineeService {
 
 
   fetchAccountsWithNominees(): Observable<Account[]> {
-    console.log('Fetching customer and accounts...');
+    // console.log('Fetching customer and accounts...');
 
     const headers = this.getHeaders();
 
     return this.http.get<Customer>(`${environment.apiBaseUrl}/customers`, { headers })
       .pipe(
         switchMap(customer => {
-          console.log("Resolved customer:", customer);
+          // console.log("Resolved customer:", customer);
           return this.http.get<Account[]>(`${environment.apiBaseUrl}/accounts/customer/${customer.customerId}`, { headers });
         }),
         switchMap(accounts => {
-          console.log('Accounts fetched successfully:', accounts);
-          console.log('Total accounts found:', accounts.length);
+          // console.log('Accounts fetched successfully:', accounts);
+          // console.log('Total accounts found:', accounts.length);
 
           if (!accounts || accounts.length === 0) {
             console.log('No accounts found for customer');
@@ -60,12 +60,12 @@ export class NomineeService {
           // Combine accounts with their nominees
           return forkJoin<Nominee[][]>(nomineeRequests).pipe(
             map((nomineesArrays: Nominee[][]) => {
-              console.log("nominees:", nomineesArrays);
+              // console.log("nominees:", nomineesArrays);
               const result = accounts.map((account, index) => ({
                 ...account,
                 nominees: nomineesArrays[index] || []
               }));
-              console.log('Accounts with nominees:', result);
+              // console.log('Accounts with nominees:', result);
               return result;
             })
           );
@@ -75,7 +75,7 @@ export class NomineeService {
 
 
   createNominee(nomineeData: any): Observable<any> {
-    console.log('Creating new nominee:', nomineeData);
+    // console.log('Creating new nominee:', nomineeData);
     const headers = this.getHeaders();
     const createRequest: CreateNomineeRequest = this.processNomineeData(nomineeData, false);
     return this.http.post(`${this.base}`, createRequest, { headers });
@@ -83,7 +83,7 @@ export class NomineeService {
 
 
   updateNominee(nomineeId: number, nomineeData: any): Observable<any> {
-    console.log('Updating nominee with ID:', nomineeId, nomineeData);
+    // console.log('Updating nominee with ID:', nomineeId, nomineeData);
     const headers = this.getHeaders();
     const updateRequest: UpdateNomineeRequest = this.processNomineeData(nomineeData, true);
     return this.http.put(`${this.base}/${nomineeId}`, updateRequest, { headers });
