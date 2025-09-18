@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-account-creation',
@@ -59,8 +60,13 @@ export class AccountCreationComponent {
       'Authorization': `Bearer ${localStorage.getItem('token')}`
     });
 
-    const url = 'http://localhost:8080/bank-api/accounts/' + 
+    // private readonly base = `${environment.apiBaseUrl}/nominees`
+
+    const url = `${environment.apiBaseUrl}/accounts/` + 
                 (this.isSavingsAccount ? 'savings' : 'term');
+
+    // const url = 'http://localhost:8080/bank-api/accounts/' + 
+    //             (this.isSavingsAccount ? 'savings' : 'term');
 
     this.http.post(url, accountData, { headers }).subscribe({
       next: (response: any) => {
