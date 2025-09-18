@@ -1,7 +1,4 @@
 {
-  "builds": [
-    { "src": "dist/banck-app-client/**/*", "use": "@vercel/static" }
-  ],
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ]
