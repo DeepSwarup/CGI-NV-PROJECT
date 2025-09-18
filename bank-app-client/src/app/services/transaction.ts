@@ -6,7 +6,7 @@ import { Transaction } from '../models/transaction.model';
 
 @Injectable({ providedIn: 'root' })
 export class TransactionService {
-  private static readonly API_ROOT = 'http://localhost:8080/bank-api';
+  private static readonly API_ROOT = 'https://cgi-bankapp-api.onrender.com/bank-api';
   private readonly base = `${TransactionService.API_ROOT}/transactions`;
 
   constructor(private http: HttpClient) {}

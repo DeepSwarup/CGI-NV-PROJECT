@@ -59,7 +59,7 @@ export class AccountCreationComponent {
       'Authorization': `Bearer ${localStorage.getItem('token')}`
     });
 
-    const url = 'http://localhost:8080/bank-api/accounts/' + 
+    const url = 'https://cgi-bankapp-api.onrender.com/bank-api/accounts/' + 
                 (this.isSavingsAccount ? 'savings' : 'term');
 
     this.http.post(url, accountData, { headers }).subscribe({
